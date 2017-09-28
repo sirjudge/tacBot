@@ -8,12 +8,12 @@
   },
   "match": {
     "bots": [{
-      "command": "python3 /home/justin/ai/source/ultimate-tic-tac-toe-python-starter/main.py"
+      "command": "python3 /home/nico/Documents/CompSci/440/tacBot/main.py"
     },{
-      "command": "python3 /home/justin/ai/source/ultimate-tic-tac-toe-python-starter/main.py"
+      "command": "python3 /home/nico/Documents/CompSci/440/tacBot/main.py"
     }],
     "engine": {
-      "command": "java -jar /home/justin/ai/source/ultimate-tic-tac-toe-engine/ultimate-tic-tac-toe-engine-1.0.5.jar"
+      "command": "java -jar /home/nico/Documents/CompSci/440/tacBot/ultimate-tic-tac-toe-engine-1.0.5.jar"
     }
   }
 }
