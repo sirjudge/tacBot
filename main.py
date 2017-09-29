@@ -37,14 +37,16 @@ def go():
 
 class BotStarter:
     def __init__(self):
-        random.seed()
-        
+        random.seed()  # helps create a more random environment
+
+    # if number of moves is greater than 0 make a random move
     def doMove(self, state):
         moves = state.getField().getAvailableMoves()
-        if (len(moves) > 0):
+        if len(moves) > 0:
             return moves[random.randrange(len(moves))]
         else:
             return None
+
 
 if __name__ == '__main__':
     go()
