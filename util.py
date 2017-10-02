@@ -112,7 +112,8 @@ class Field:
     def setOpponentId(self, i):
         self.__opponentId = i
 
-        
+
+# pretty self explanatory class. It has the x and y values of the move you want to make
 class Move:
     __x = -1
     __y = -1
@@ -202,7 +203,7 @@ class BotState:
         return self.__TIME_PER_MOVE
 
 
-# Class handles parsing of variables
+# Class handles parsing of variables and acts upon those variables passed in
 class BotParser:
     __bot = None
     __currentState = None
