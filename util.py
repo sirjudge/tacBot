@@ -132,15 +132,6 @@ class Field:
     def setOpponentId(self, i):
         self.__opponentId = i
 
-    # Key for eval returns
-    # 1: no Xs or Os
-    # 2: there is 1 X and no Os
-    # 3: there are 2 Xs and no Os
-    # 4: there are 2 Os and X can make a block
-    # 5: there is 1 O and no Xs
-    # 6:
-    # 7:
-
     def evalX(self,sList):
         xCount = 0
         oCount = 0
