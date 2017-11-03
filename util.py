@@ -1,13 +1,33 @@
 import sys
+import random
+
+
+class Encoding:
+    strat = ""
+
+    def __init__(self):
+        strat = '42424242'
+
+    def crossbreed(self, encoding1, encoding2):
+        crossChance = random.randint(0, 100)
+        crossPlace = random.randint(0, len(encoding1) - 1)
+        if crossChance >= 10:
+            e1f = encoding1[0:crossPlace]
+            e1s = encoding1[0:crossPlace + 1]
+            e2f = encoding2[0:crossPlace]
+            e2s = encoding2[0:crossPlace + 1]
+        ne1 = e1f + e2s
+        ne2 = e2f + e1f
+        return ne1, ne2
 
 
 class Field:
     __EMPTY_FIELD = "."         # value for an empty field
-    __AVAILABLE_FIELD = "-1"    # value for an available field
+    __AVAILABLE_FIELD = "-1"    # value for an available field on micro board
     __NUM_COLS = 9              # number of columns
     __NUM_ROWS = 9              # number of rows
-    __mBoard = []               # small board
-    __mMacroboard = []          # outside board
+    __mBoard = []               # micro board
+    __mMacroboard = []          # macro board
     __myId = 0
     __opponentId = 0
 
@@ -112,6 +132,78 @@ class Field:
     def setOpponentId(self, i):
         self.__opponentId = i
 
+    # Key for eval returns
+    # 1: no Xs or Os
+    # 2: there is 1 X and no Os
+    # 3: there are 2 Xs and no Os
+    # 4: there are 2 Os and X can make a block
+    # 5: there is 1 O and no Xs
+    # 6:
+    # 7:
+
+    def evalX(self,sList):
+        xCount = 0
+        oCount = 0
+        for x in sList:
+            if x == 'X':
+                xCount += 1
+            elif x == 'O':
+                oCount += 1
+        if xCount == 2 and oCount == 0:
+            return 3
+        elif xCount == 1 and oCount == 0:
+            return 2
+        elif xCount == 0 and oCount == 0:
+            return 1
+
+        if oCount == 2 and xCount == 0:
+            return 4
+        if oCount == 1 and xCount == 0:
+            return 5
+
+    # checks how close a win case is for horizontal, vertical, and horizontal
+    def horizontal(self):
+        currRow = []
+        for x in range(0, 2):
+            if self.__mMacroboard[x] == 'X':
+                currRow.append(x)
+            elif self.__mMacroboard[x] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
+                currRow.append('_')
+            else:
+                currRow.append('O')
+
+        for x in range(3, 5):
+            if self.__mBoard[x] == 'X':
+                currRow.append(x)
+            elif self.__mMacroboard[x] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
+                currRow.append('_')
+            else:
+                currRow.append('O')
+        for x in range(6, 8):
+            if self.__mBoard[x] == 'X':
+                currRow.append(x)
+            elif self.__mMacroboard[x] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
+                currRow.append('_')
+            else:
+                currRow.append('O')
+
+    def vertical(self):
+        if self.__mMacroboard[0] and self.__mMacroboard[3] and self.__mMacroboard[6] == 'X':
+            return True
+        elif self.__mMacroboard[1] and self.__mMacroboard[4] and self.__mMacroboard[7] == 'X':
+            return True
+        elif self.__mMacroboard[2] and self.__mMacroboard[5] and self.__mMacroboard[8] == 'X':
+            return True
+        else:
+            return False
+
+    def diagonal(self):
+        if self.__mMacroboard[0] and self.__mMacroboard[4] and self.__mMacroboard[8] == 'X':
+            return True
+        elif self.__mMacroboard[2] and self.__mMacroboard[4] and self.__mMacroboard[6] == 'X':
+            return True
+        else:
+            return False
 
 # pretty self explanatory class. It has the x and y values of the move you want to make
 class Move:
