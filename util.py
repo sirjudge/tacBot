@@ -1,6 +1,13 @@
 import sys
 import random
 
+#TODO
+# 1) Right now evaluations are in a list for each row/col/diag so we have
+#    2 or 3 evals to look at. Do something with that
+# 2) We need to do something with the evals to turn them into an encoding
+# 3) Once we have that encoding we need to log it to a file so we have a log
+#    so write to file?
+# 4) Also I need to actually evaluate a move first, so do that please
 
 class Encoding:
     strat = ""
@@ -43,7 +50,7 @@ class Field:
         # Does the same thing as above but for the big outside board
         null_row = []
         for col in range(self.__NUM_COLS // 3):
-            null_row.append(self.__EMPTY_FIELD)
+            null_row.append(self.__EMPTY_FIrow2ELD)
         for row in range(self.__NUM_ROWS//3):
             self.__mMacroboard.append(list(null_row))
 
@@ -76,9 +83,11 @@ class Field:
             for x in range(self.__NUM_COLS):
                 if self.isInActiveMicroboard(x, y) and (self.__mBoard[x][y] == self. __EMPTY_FIELD):
                     moves.append(Move(x, y))
+                    #TODO
+                    # Evaluate moves here potentially
         return moves
 
-    # Returns false if the the micro board has been finished or not
+    # Returns false if the the micro board has been finished
     def isInActiveMicroboard(self, x, y):
         return self.__mMacroboard[x // 3][y // 3] == self. __AVAILABLE_FIELD
 
@@ -155,46 +164,69 @@ class Field:
     # checks how close a win case is for horizontal, vertical, and horizontal
     def horizontal(self):
         currRow = []
+        rowEvals = []
         for x in range(0, 2):
             if self.__mMacroboard[x] == 'X':
-                currRow.append(x)
+                currRow.append('X')
             elif self.__mMacroboard[x] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
                 currRow.append('_')
             else:
                 currRow.append('O')
+        rowEvals.append(self.evalX(currRow))
+        currRow = []
 
         for x in range(3, 5):
             if self.__mBoard[x] == 'X':
-                currRow.append(x)
+                currRow.append('X')
             elif self.__mMacroboard[x] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
                 currRow.append('_')
             else:
                 currRow.append('O')
+        rowEvals.append(self.evalX(currRow))
+        currRow = []
+
         for x in range(6, 8):
             if self.__mBoard[x] == 'X':
-                currRow.append(x)
+                currRow.append('X')
             elif self.__mMacroboard[x] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
                 currRow.append('_')
             else:
                 currRow.append('O')
+        rowEvals.append(self.evalX(currRow))
+        return rowEvals
 
     def vertical(self):
-        if self.__mMacroboard[0] and self.__mMacroboard[3] and self.__mMacroboard[6] == 'X':
-            return True
-        elif self.__mMacroboard[1] and self.__mMacroboard[4] and self.__mMacroboard[7] == 'X':
-            return True
-        elif self.__mMacroboard[2] and self.__mMacroboard[5] and self.__mMacroboard[8] == 'X':
-            return True
-        else:
-            return False
+        currRow = []
+        colEvals = []
+        bNumList = [[0, 3, 4], [1, 4, 7], [2, 5, 8]]
+
+        for x in bNumList:
+            for y in x:
+                if self.__mMacroboard[y] == 'X':
+                    currRow.append('X')
+                elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
+                    currRow.append('_')
+                else:
+                    currRow.append('O')
+            colEvals.append(self.evalX(currRow))
+        return colEvals
+
 
     def diagonal(self):
-        if self.__mMacroboard[0] and self.__mMacroboard[4] and self.__mMacroboard[8] == 'X':
-            return True
-        elif self.__mMacroboard[2] and self.__mMacroboard[4] and self.__mMacroboard[6] == 'X':
-            return True
-        else:
-            return False
+        currRow = []
+        bNumList = [[0, 4, 8], [2, 4, 6]]
+        diagEvals = []
+        for x in bNumList:
+            for y in x:
+                if self.__mMacroboard[y] == 'X':
+                    currRow.append('X')
+                elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
+                    currRow.append('_')
+                else:
+                    currRow.append('O')
+            diagEvals.append(self.evalX(currRow))
+        return diagEvals
+
 
 # pretty self explanatory class. It has the x and y values of the move you want to make
 class Move:
