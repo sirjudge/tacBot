@@ -1,4 +1,4 @@
-.idea
+.idea/
 *.json
 *.xml
-__pycache__
+__pycache__/
