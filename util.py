@@ -1,64 +1,110 @@
 import sys
 import random
 
-#TODO
+
+# TODO
+# Changes made
+#   - added comments to encoding class
+#   - added mutate function to encoding class
+#   - added encoding base class which writes + reads
+#     encoding list from text file
+
+
+# TODO
 # 1) Right now evaluations are in a list for each row/col/diag so we have
 #    2 or 3 evals to look at. Do something with that
 # 2) We need to do something with the evals to turn them into an encoding
 # 3) Once we have that encoding we need to log it to a file so we have a log
 #    so write to file?
 # 4) Also I need to actually evaluate a move first, so do that please
+# 5) Make sure mutate function mutates correctly
+# 6) Using encoding base class add functionality so that the encodings are
+#    actually being used
+
+
+class EncodingBase:
+    encodingList = []
+
+    def __init__(self):
+        log = open('encoding.txt', 'r+')
+        for line in log:
+            self.encodingList.append(line)
+
+    def writeToLog(self):
+        log = open('encoding.txt', 'r+')
+        log.truncate()
+        for enc in self.encodingList:
+            log.write(enc + '\n')
+
 
 class Encoding:
     strat = ""
 
-    def __init__(self):
-        strat = '42424242'
-
     def crossbreed(self, encoding1, encoding2):
         crossChance = random.randint(0, 100)
         crossPlace = random.randint(0, len(encoding1) - 1)
-        if crossChance >= 10:
+        if crossChance <= 10:
+            # Separate first encoding
             e1f = encoding1[0:crossPlace]
             e1s = encoding1[0:crossPlace + 1]
+            # Separate second encoding
             e2f = encoding2[0:crossPlace]
             e2s = encoding2[0:crossPlace + 1]
+        # combine first half of encoding 1 with second half of encoding 2
         ne1 = e1f + e2s
-        ne2 = e2f + e1f
+        # combine first half of encoding 2 with second half of encoding 1
+        ne2 = e2f + e1s
+        # Run both encodings through mutate function
+        ne1 = self.mutate(ne1)
+        ne2 = self.mutate(ne2)
+        # return both encodings
         return ne1, ne2
+
+    def mutate(self, encoding):
+        # Choose a random number between 1 and 100 to be our chance to mutate
+        mutateChance = random.randint(0, 100)
+        out = ''
+        # for each number in the encoding
+        for x in encoding:
+            # 1% chance to mutate to a random strat
+            if mutateChance == 42:
+                out.append(random.randint(0, 5))
+            # 99% chance to keep the same strat
+            else:
+                out.append(x)
+        return out
 
 
 class Field:
-    __EMPTY_FIELD = "."         # value for an empty field
-    __AVAILABLE_FIELD = "-1"    # value for an available field on micro board
-    __NUM_COLS = 9              # number of columns
-    __NUM_ROWS = 9              # number of rows
-    __mBoard = []               # micro board
-    __mMacroboard = []          # macro board
+    __EMPTY_FIELD = "."  # value for an empty field
+    __AVAILABLE_FIELD = "-1"  # value for an available field on micro board
+    __NUM_COLS = 9  # number of columns
+    __NUM_ROWS = 9  # number of rows
+    __mBoard = []  # micro board
+    __mMacroboard = []  # macro board
     __myId = 0
     __opponentId = 0
 
     # initializes the entire board to be blank
     def __init__(self):
-        null_row = []                               # create an empty row
-        for col in range(self.__NUM_COLS):          # for every column add an empty_field variable
+        null_row = []  # create an empty row
+        for col in range(self.__NUM_COLS):  # for every column add an empty_field variable
             null_row.append(self.__EMPTY_FIELD)
-        for row in range(self.__NUM_ROWS):          # for every row append the empty column list
+        for row in range(self.__NUM_ROWS):  # for every row append the empty column list
             self.__mBoard.append(list(null_row))
-
         # Macroboard
         # Does the same thing as above but for the big outside board
         null_row = []
         for col in range(self.__NUM_COLS // 3):
-            null_row.append(self.__EMPTY_FIrow2ELD)
-        for row in range(self.__NUM_ROWS//3):
+            null_row.append(self.__EMPTY_FIELD)
+        for row in range(self.__NUM_ROWS // 3):
             self.__mMacroboard.append(list(null_row))
 
     # sets the values of the board from a given string s of inputs
     def parseFromString(self, s):
         s = s.replace(";", ",")  # replaces ';' with ','
-        r = s.split(",")         # separates the new string into a list using , as the split point
-        counter = 0              # Counter variable
+        r = s.split(",")  # separates the new string into a list using , as the split point
+        counter = 0  # Counter variable
         # Loop through the board and set the value of board[x][y] to be the
         # correct value from the input list r -> ie X or O
         for y in range(self.__NUM_ROWS):
@@ -81,15 +127,15 @@ class Field:
         moves = []
         for y in range(self.__NUM_ROWS):
             for x in range(self.__NUM_COLS):
-                if self.isInActiveMicroboard(x, y) and (self.__mBoard[x][y] == self. __EMPTY_FIELD):
+                if self.isInActiveMicroboard(x, y) and (self.__mBoard[x][y] == self.__EMPTY_FIELD):
                     moves.append(Move(x, y))
-                    #TODO
+                    # TODO
                     # Evaluate moves here potentially
         return moves
 
     # Returns false if the the micro board has been finished
     def isInActiveMicroboard(self, x, y):
-        return self.__mMacroboard[x // 3][y // 3] == self. __AVAILABLE_FIELD
+        return self.__mMacroboard[x // 3][y // 3] == self.__AVAILABLE_FIELD
 
     # gets called when trying to print out a field object. Creates a more readable print statement
     def toString(self):
@@ -99,7 +145,7 @@ class Field:
             for x in range(self.__NUM_COLS):
                 if counter > 0:
                     r += ","
-                r += self. __mBoard[x][y]
+                r += self.__mBoard[x][y]
                 counter += 1
         return r
 
@@ -141,14 +187,20 @@ class Field:
     def setOpponentId(self, i):
         self.__opponentId = i
 
-    def evalX(self,sList):
+    def evalX(self, sList):
+        # Counter variable for X and O
         xCount = 0
         oCount = 0
+        # loop through elements in the passed in list of moves for the board
+        # each move is either 'X', 'O', or '_'
+        # set up counter variables
         for x in sList:
             if x == 'X':
                 xCount += 1
             elif x == 'O':
                 oCount += 1
+        # Evaluates what case the board is in
+        # TODO --> add a table here that says what each thing does
         if xCount == 2 and oCount == 0:
             return 3
         elif xCount == 1 and oCount == 0:
@@ -204,13 +256,12 @@ class Field:
             for y in x:
                 if self.__mMacroboard[y] == 'X':
                     currRow.append('X')
-                elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
+                elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[y] == self.__AVAILABLE_FIELD:
                     currRow.append('_')
                 else:
                     currRow.append('O')
             colEvals.append(self.evalX(currRow))
         return colEvals
-
 
     def diagonal(self):
         currRow = []
@@ -220,7 +271,7 @@ class Field:
             for y in x:
                 if self.__mMacroboard[y] == 'X':
                     currRow.append('X')
-                elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
+                elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[y] == self.__AVAILABLE_FIELD:
                     currRow.append('_')
                 else:
                     currRow.append('O')
