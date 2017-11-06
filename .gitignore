@@ -1,0 +1,5 @@
+.idea/
+*.json
+*.xml
+__pycache__/
+*.swp
