@@ -36,10 +36,6 @@ class EncodingBase:
         for enc in self.encodingList:
             log.write(enc + '\n')
 
-
-class Encoding:
-    strat = ""
-
     def crossbreed(self, encoding1, encoding2):
         crossChance = random.randint(0, 100)
         crossPlace = random.randint(0, len(encoding1) - 1)
@@ -68,16 +64,16 @@ class Encoding:
         for x in encoding:
             # 1% chance to mutate to a random strat
             if mutateChance == 42:
-                out.append(random.randint(0, 5))
+                out = out + (random.randint(0, 5))
             # 99% chance to keep the same strat
             else:
-                out.append(x)
+                out = out + x
         return out
 
 
 class Field:
-    __EMPTY_FIELD = "."  # value for an empty field
-    __AVAILABLE_FIELD = "-1"  # value for an available field on micro board
+    __EMPTY_FIELD = "."  # value for an empty field on microboard
+    __AVAILABLE_FIELD = "-1"  # you can move on the macroboard
     __NUM_COLS = 9  # number of columns
     __NUM_ROWS = 9  # number of rows
     __mBoard = []  # micro board
@@ -187,64 +183,60 @@ class Field:
     def setOpponentId(self, i):
         self.__opponentId = i
 
-    def evalX(self, sList):
+    def eval(self, sList):
         # Counter variable for X and O
-        xCount = 0
-        oCount = 0
+        p1Count = 0
+        p2Count = 0
         # loop through elements in the passed in list of moves for the board
         # each move is either 'X', 'O', or '_'
         # set up counter variables
+
+        # sList will be horzEval,vertEval,diagEval
+        for x in sList:
+            for y in x:
+                if y == 'X':
+                    p1Count += 1
+                elif y == 'O':
+                    p2Count += 1
+
+
+        #BELOW THIS IS OLD CODE
         for x in sList:
             if x == 'X':
-                xCount += 1
+                p1Count += 1
             elif x == 'O':
-                oCount += 1
+                p2Count += 1
         # Evaluates what case the board is in
         # TODO --> add a table here that says what each thing does
-        if xCount == 2 and oCount == 0:
+        if p1Count == 2 and p2Count == 0:
             return 3
-        elif xCount == 1 and oCount == 0:
+        elif p1Count == 1 and p2Count == 0:
             return 2
-        elif xCount == 0 and oCount == 0:
+        elif p1Count == 0 and p2Count == 0:
             return 1
-
-        if oCount == 2 and xCount == 0:
+        if p2Count == 2 and p1Count == 0:
             return 4
-        if oCount == 1 and xCount == 0:
+        if p2Count == 1 and p1Count == 0:
             return 5
+    # ABOVE THIS IS OLD CODE
 
+    # TODO: moves are done using playerID not X or O - usually an integer, 0 or 1
     # checks how close a win case is for horizontal, vertical, and horizontal
     def horizontal(self):
         currRow = []
         rowEvals = []
-        for x in range(0, 2):
-            if self.__mMacroboard[x] == 'X':
-                currRow.append('X')
-            elif self.__mMacroboard[x] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
-                currRow.append('_')
-            else:
-                currRow.append('O')
-        rowEvals.append(self.evalX(currRow))
-        currRow = []
+        bNumList = [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
 
-        for x in range(3, 5):
-            if self.__mBoard[x] == 'X':
-                currRow.append('X')
-            elif self.__mMacroboard[x] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
-                currRow.append('_')
-            else:
-                currRow.append('O')
-        rowEvals.append(self.evalX(currRow))
-        currRow = []
-
-        for x in range(6, 8):
-            if self.__mBoard[x] == 'X':
-                currRow.append('X')
-            elif self.__mMacroboard[x] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
-                currRow.append('_')
-            else:
-                currRow.append('O')
-        rowEvals.append(self.evalX(currRow))
+        for x in bNumList:
+            for y in x:
+                if self.__mMacroboard[y] == self.getPlayerID():
+                    currRow.append('X')
+                elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
+                    currRow.append('_')
+                else:
+                    currRow.append('O')
+            rowEvals.append(self.eval(currRow), currRow)
+            currRow = []
         return rowEvals
 
     def vertical(self):
@@ -254,29 +246,52 @@ class Field:
 
         for x in bNumList:
             for y in x:
-                if self.__mMacroboard[y] == 'X':
+                if self.__mMacroboard[y] == self.getPlayerID():
                     currRow.append('X')
                 elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[y] == self.__AVAILABLE_FIELD:
                     currRow.append('_')
                 else:
                     currRow.append('O')
-            colEvals.append(self.evalX(currRow))
+            colEvals.append(self.eval(currRow), currRow)
+            currRow = []
         return colEvals
 
     def diagonal(self):
-        currRow = []
+        currDiag = []
         bNumList = [[0, 4, 8], [2, 4, 6]]
         diagEvals = []
         for x in bNumList:
             for y in x:
-                if self.__mMacroboard[y] == 'X':
-                    currRow.append('X')
+                if self.__mMacroboard[y] == self.getPlayerID():
+                    currDiag.append('X')
                 elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[y] == self.__AVAILABLE_FIELD:
-                    currRow.append('_')
+                    currDiag.append('_')
                 else:
-                    currRow.append('O')
-            diagEvals.append(self.evalX(currRow))
+                    currDiag.append('O')
+            diagEvals.append(self.eval(currDiag), currDiag)
         return diagEvals
+
+    def threevalToEncode(self, horz, vert, diag):
+        # one eval for each row
+        horzEval1 = horz[0][0]
+        horzEval2 = horz[0][1]
+        horzEval3 = horz[0][2]
+
+        # One eval for each column
+        vertEval1 = vert[0][0]
+        vertEval2 = vert[0][1]
+        vertEval3 = vert[0][2]
+
+        # One eval for each diagonal
+        diagEval1 = diag[0][0]
+        diagEval2 = diag[0][1]
+
+        row1 = horz[1][0]
+        row2 = horz[1][1]
+        row3 = horz[1][2]
+
+        currBoard = row1 + row2 + row3
+        # TODO: This is where the encoding should be made
 
 
 # pretty self explanatory class. It has the x and y values of the move you want to make
@@ -392,7 +407,7 @@ class BotParser:
         while not sys.stdin.closed:  # while program has not been stopped
             try:
                 rawline = sys.stdin.readline()  # read one line from stdin
-                # returns a copy of the string in which all chars have been stripped from the beginning
+                # returnss a copy of the string in which all chars have been stripped from the beginning
                 # and the end of the string (default whitespace characters)
                 line = rawline.strip()
                 self.handle_message(line)
