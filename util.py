@@ -1,15 +1,6 @@
 import sys
 import random
 
-
-# TODO
-# Changes made
-#   - added comments to encoding class
-#   - added mutate function to encoding class
-#   - added encoding base class which writes + reads
-#     encoding list from text file
-
-
 # TODO
 # 1) Right now evaluations are in a list for each row/col/diag so we have
 #    2 or 3 evals to look at. Do something with that
@@ -20,10 +11,15 @@ import random
 # 5) Make sure mutate function mutates correctly
 # 6) Using encoding base class add functionality so that the encodings are
 #    actually being used
+# 7) Probably create encodings and tweak crossbreed and mutate chance
+# 8) Create fitness evaluation function will be based off win/loss/tie rate
+#    plus take into account who went first
 
 
-class EncodingBase:
+class Encoding:
     encodingList = []
+    # will be a list of tuples
+    # (encoding,fitness score)
 
     def __init__(self):
         log = open('encoding.txt', 'r+')
@@ -34,15 +30,13 @@ class EncodingBase:
         log = open('encoding.txt', 'r+')
         log.truncate()
         for enc in self.encodingList:
-            log.write(enc + '\n')
-
-
-class Encoding:
-    strat = ""
+            log.write(enc[0] + '\n')
+            log.write(enc[1] + '\n')
 
     def crossbreed(self, encoding1, encoding2):
         crossChance = random.randint(0, 100)
         crossPlace = random.randint(0, len(encoding1) - 1)
+        # Has a 10% chance to crossbreed
         if crossChance <= 10:
             # Separate first encoding
             e1f = encoding1[0:crossPlace]
@@ -60,7 +54,8 @@ class Encoding:
         # return both encodings
         return ne1, ne2
 
-    def mutate(self, encoding):
+    @staticmethod
+    def mutate(encoding):
         # Choose a random number between 1 and 100 to be our chance to mutate
         mutateChance = random.randint(0, 100)
         out = ''
@@ -130,7 +125,7 @@ class Field:
                 if self.isInActiveMicroboard(x, y) and (self.__mBoard[x][y] == self.__EMPTY_FIELD):
                     moves.append(Move(x, y))
                     # TODO
-                    # Evaluate moves here potentially
+                    # based off this list of moves we have to look at our encodings and move
         return moves
 
     # Returns false if the the micro board has been finished
@@ -201,6 +196,7 @@ class Field:
                 oCount += 1
         # Evaluates what case the board is in
         # TODO --> add a table here that says what each thing does
+        # could also have win case here if there are three Xs or three Os
         if xCount == 2 and oCount == 0:
             return 3
         elif xCount == 1 and oCount == 0:
@@ -213,21 +209,25 @@ class Field:
         if oCount == 1 and xCount == 0:
             return 5
 
-    # checks how close a win case is for horizontal, vertical, and horizontal
+    # Evaluates a row, column, or diagonal of a board
+    # Loops through each row and creates a string of what moves have been made
+    # ie. XO_ stands for an X in the first spot, O in the second, and no move in the third spot
     def horizontal(self):
         currRow = []
         rowEvals = []
-        for x in range(0, 2):
+        for x in range(0, 2): #loop through first row
+            # if the space is empty/available put a blank
+            # otherwise mark it as X or O
             if self.__mMacroboard[x] == 'X':
                 currRow.append('X')
             elif self.__mMacroboard[x] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
                 currRow.append('_')
             else:
                 currRow.append('O')
-        rowEvals.append(self.evalX(currRow))
-        currRow = []
+        rowEvals.append(self.evalX(currRow)) #eval the current row and append it to the list
+        currRow = [] #clears the list every time an evaluation is made
 
-        for x in range(3, 5):
+        for x in range(3, 5): #loop through second row
             if self.__mBoard[x] == 'X':
                 currRow.append('X')
             elif self.__mMacroboard[x] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
@@ -237,7 +237,7 @@ class Field:
         rowEvals.append(self.evalX(currRow))
         currRow = []
 
-        for x in range(6, 8):
+        for x in range(6, 8): #loop through third line
             if self.__mBoard[x] == 'X':
                 currRow.append('X')
             elif self.__mMacroboard[x] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
@@ -250,19 +250,20 @@ class Field:
     def vertical(self):
         currRow = []
         colEvals = []
-        bNumList = [[0, 3, 4], [1, 4, 7], [2, 5, 8]]
+        bNumList = [[0, 3, 4], [1, 4, 7], [2, 5, 8]] #three different columns
 
-        for x in bNumList:
-            for y in x:
+        for x in bNumList: # for each column in the board
+            for y in x: # loop through each item in the corresponding location
                 if self.__mMacroboard[y] == 'X':
                     currRow.append('X')
                 elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[y] == self.__AVAILABLE_FIELD:
                     currRow.append('_')
                 else:
                     currRow.append('O')
-            colEvals.append(self.evalX(currRow))
+            colEvals.append(self.evalX(currRow)) # append to the list after each column has been fully computed
         return colEvals
 
+    # works similar to vertical and horizontal, see above comments
     def diagonal(self):
         currRow = []
         bNumList = [[0, 4, 8], [2, 4, 6]]

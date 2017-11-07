@@ -42,6 +42,7 @@ class BotStarter:
     # if number of moves is greater than 0 make a random move
     def doMove(self, state):
         moves = state.getField().getAvailableMoves()
+        # TODO: instead of moving somehwere random based off available moves use encoding here
         if len(moves) > 0:
             return moves[random.randrange(len(moves))]
         else:
