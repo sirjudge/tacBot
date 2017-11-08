@@ -1,6 +1,7 @@
 import sys
 import random
 
+
 # TODO
 # 1) Right now evaluations are in a list for each row/col/diag so we have
 #    2 or 3 evals to look at. Do something with that
@@ -18,6 +19,7 @@ import random
 
 class Encoding:
     encodingList = []
+
     # will be a list of tuples
     # (encoding,fitness score)
 
@@ -34,6 +36,12 @@ class Encoding:
             log.write(enc[1] + '\n')
 
     def crossbreed(self, encoding1, encoding2):
+        # First part of both encodings
+        e1f = ''
+        e2f = ''
+        # Second part of both encodings
+        e1s = ''
+        e2s = ''
         crossChance = random.randint(0, 100)
         crossPlace = random.randint(0, len(encoding1) - 1)
         # Has a 10% chance to crossbreed
@@ -124,8 +132,7 @@ class Field:
             for x in range(self.__NUM_COLS):
                 if self.isInActiveMicroboard(x, y) and (self.__mBoard[x][y] == self.__EMPTY_FIELD):
                     moves.append(Move(x, y))
-                    # TODO
-                    # based off this list of moves we have to look at our encodings and move
+                    # TODO: based off this list of moves we have to look at our encodings and move
         return moves
 
     # Returns false if the the micro board has been finished
@@ -182,7 +189,8 @@ class Field:
     def setOpponentId(self, i):
         self.__opponentId = i
 
-    def eval(self, sList):
+    @staticmethod
+    def eval(sList):
         # Counter variable for X and O
         p1Count = 0
         p2Count = 0
@@ -191,6 +199,9 @@ class Field:
         # set up counter variables
 
         # sList will be horzEval,vertEval,diagEval
+        # X is current player
+        # Y is opponent
+        # _ is a blank space
         for x in sList:
             for y in x:
                 if y == 'X':
@@ -198,8 +209,7 @@ class Field:
                 elif y == 'O':
                     p2Count += 1
 
-
-        #BELOW THIS IS OLD CODE
+        # BELOW THIS IS OLD CODE
         for x in sList:
             if x == 'X':
                 p1Count += 1
@@ -217,9 +227,11 @@ class Field:
             return 4
         if p2Count == 1 and p1Count == 0:
             return 5
+
     # ABOVE THIS IS OLD CODE
 
     # TODO: moves are done using playerID not X or O - usually an integer, 0 or 1
+    # TODO: getPlayerID method takes an x and a y argument for where in the board you go
     # checks how close a win case is for horizontal, vertical, and horizontal
     def horizontal(self):
         currRow = []
@@ -228,30 +240,30 @@ class Field:
 
         for x in bNumList:
             for y in x:
-                if self.__mMacroboard[y] == self.getPlayerID():
+                if self.__mMacroboard[y] == self.getMyId():
                     currRow.append('X')
-                elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[x] == self.__AVAILABLE_FIELD:
+                elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[y] == self.__AVAILABLE_FIELD:
                     currRow.append('_')
                 else:
                     currRow.append('O')
-            rowEvals.append(self.eval(currRow), currRow)
+            rowEvals.append((self.eval(currRow), currRow))
             currRow = []
         return rowEvals
 
     def vertical(self):
         currRow = []
         colEvals = []
-        bNumList = [[0, 3, 4], [1, 4, 7], [2, 5, 8]] #three different columns
+        bNumList = [[0, 3, 4], [1, 4, 7], [2, 5, 8]]  # three different columns
 
         for x in bNumList:
             for y in x:
-                if self.__mMacroboard[y] == self.getPlayerID():
+                if self.__mMacroboard[y] == self.getMyId():
                     currRow.append('X')
                 elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[y] == self.__AVAILABLE_FIELD:
                     currRow.append('_')
                 else:
                     currRow.append('O')
-            colEvals.append(self.eval(currRow), currRow)
+            colEvals.append((self.eval(currRow), currRow))
             currRow = []
         return colEvals
 
@@ -262,13 +274,13 @@ class Field:
         diagEvals = []
         for x in bNumList:
             for y in x:
-                if self.__mMacroboard[y] == self.getPlayerID():
+                if self.__mMacroboard[y] == self.getMyId():
                     currDiag.append('X')
                 elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[y] == self.__AVAILABLE_FIELD:
                     currDiag.append('_')
                 else:
                     currDiag.append('O')
-            diagEvals.append(self.eval(currDiag), currDiag)
+            diagEvals.append((self.eval(currDiag), currDiag))
         return diagEvals
 
     def threevalToEncode(self, horz, vert, diag):
@@ -289,9 +301,41 @@ class Field:
         row1 = horz[1][0]
         row2 = horz[1][1]
         row3 = horz[1][2]
-
         currBoard = row1 + row2 + row3
+        
+        for x in horz:
+            print('horz[' + x + '] = ' + horz[x])
+            for y in x:
+                print('horz[' + x + ']' + '['  + y + '] = ' + horz[x][y])
+
+        for x in vert:
+            print('vert[' + x + '] = ' + vert[x])
+            for y in x:
+                print('vert[' + x + ']' + '['  + y + '] = ' + vert[x][y])
+
+        for x in diag:
+            print('diag[' + x + '] = ' + diag[x])
+            for y in x:
+                print('diag[' + x + ']' + '['  + y + '] = ' + diag[x][y])
+
+        print('Board = ' + currBoard)
         # TODO: This is where the encoding should be made
+        # if p1Count == 2 and p2Count == 0:
+        #    return 3
+        # elif p1Count == 1 and p2Count == 0:
+        #    return 2
+        # elif p1Count == 0 and p2Count == 0:
+        #    return 1
+        # if p2Count == 2 and p1Count == 0:
+        #    return 4
+        # if p2Count == 1 and p1Count == 0:
+        #    return 5
+
+        # (e1,e2,e3)
+        for x in range(0,2):
+            if horz[0][x] == 3:
+                # TODO: this needs to encode W for this box
+                pass
 
 
 # pretty self explanatory class. It has the x and y values of the move you want to make
