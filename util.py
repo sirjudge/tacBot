@@ -17,67 +17,6 @@ import random
 #    plus take into account who went first
 
 
-class Encoding:
-    encodingList = []
-
-    # will be a list of tuples
-    # (encoding,fitness score)
-
-    def __init__(self):
-        log = open('encoding.txt', 'r+')
-        for line in log:
-            self.encodingList.append(line)
-
-    def writeToLog(self):
-        log = open('encoding.txt', 'r+')
-        log.truncate()
-        for enc in self.encodingList:
-            log.write(enc[0] + '\n')
-            log.write(enc[1] + '\n')
-
-    def crossbreed(self, encoding1, encoding2):
-        # First part of both encodings
-        e1f = ''
-        e2f = ''
-        # Second part of both encodings
-        e1s = ''
-        e2s = ''
-        crossChance = random.randint(0, 100)
-        crossPlace = random.randint(0, len(encoding1) - 1)
-        # Has a 10% chance to crossbreed
-        if crossChance <= 10:
-            # Separate first encoding
-            e1f = encoding1[0:crossPlace]
-            e1s = encoding1[0:crossPlace + 1]
-            # Separate second encoding
-            e2f = encoding2[0:crossPlace]
-            e2s = encoding2[0:crossPlace + 1]
-        # combine first half of encoding 1 with second half of encoding 2
-        ne1 = e1f + e2s
-        # combine first half of encoding 2 with second half of encoding 1
-        ne2 = e2f + e1s
-        # Run both encodings through mutate function
-        ne1 = self.mutate(ne1)
-        ne2 = self.mutate(ne2)
-        # return both encodings
-        return ne1, ne2
-
-    @staticmethod
-    def mutate(encoding):
-        # Choose a random number between 1 and 100 to be our chance to mutate
-        mutateChance = random.randint(0, 100)
-        out = ''
-        # for each number in the encoding
-        for x in encoding:
-            # 1% chance to mutate to a random strat
-            if mutateChance == 42:
-                out = out + (random.randint(0, 5))
-            # 99% chance to keep the same strat
-            else:
-                out = out + x
-        return out
-
-
 class Field:
     __EMPTY_FIELD = "."  # value for an empty field on microboard
     __AVAILABLE_FIELD = "-1"  # you can move on the macroboard
@@ -230,8 +169,8 @@ class Field:
 
     # ABOVE THIS IS OLD CODE
 
-    # TODO: moves are done using playerID not X or O - usually an integer, 0 or 1
-    # TODO: getPlayerID method takes an x and a y argument for where in the board you go
+    # moves are done using playerID not X or O - usually an integer, 0 or 1
+    # getPlayerID method takes an x and a y argument for where in the board you go
     # checks how close a win case is for horizontal, vertical, and horizontal
     def horizontal(self):
         currRow = []
@@ -302,7 +241,7 @@ class Field:
         row2 = horz[1][1]
         row3 = horz[1][2]
         currBoard = row1 + row2 + row3
-        
+
         for x in horz:
             print('horz[' + x + '] = ' + horz[x])
             for y in x:

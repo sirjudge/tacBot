@@ -29,11 +29,11 @@ from util import *
 #     sys.stdout.write(message + '\n')
 #     sys.stdout.flush()
 
-def go():
+def go(encoding):
     bot = BotStarter()
     parser = BotParser(bot)
     parser.run()
-
+    # TODO: needs to return a fitness score
 
 class BotStarter:
     def __init__(self):
@@ -50,4 +50,4 @@ class BotStarter:
 
 
 if __name__ == '__main__':
-    go()
+    go(42)
