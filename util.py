@@ -16,6 +16,7 @@ import random
 # 8) Create fitness evaluation function will be based off win/loss/tie rate
 #    plus take into account who went first
 
+# TODO: get brody to send me python sub process stuff
 
 class Field:
     __EMPTY_FIELD = "."  # value for an empty field on microboard

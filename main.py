@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-
-import sys
-import random
 from util import *
 
 
@@ -35,6 +32,7 @@ def go(encoding):
     parser.run()
     # TODO: needs to return a fitness score
 
+
 class BotStarter:
     def __init__(self):
         random.seed()  # helps create a more random environment
@@ -51,3 +49,4 @@ class BotStarter:
 
 if __name__ == '__main__':
     go(42)
+    # This will create 100 mains
