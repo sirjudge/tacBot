@@ -1,5 +1,7 @@
 import random
-import main
+import os
+import sys
+
 
 class Encoding:
     encodingList = []
@@ -11,19 +13,18 @@ class Encoding:
     # encoding, fitness score
     def __init__(self):
         log = open('encoding.txt', 'r+')
-        for lineNum in range(0, self.file_len(log)):
-            # if it's the first line of the file it will be the generation number
-            if lineNum == 1:
-                self.generationNumber = log[lineNum]
-            # otherwise it is an encoding,fitness pair
+        for i, line in enumerate(log):
+            if i == 25:
+                self.generationNumber = int(line)
             else:
-                self.encodingList.append(log[lineNum].split(','))
+                self.encodingList.append(line.split(','))
+        log.close()
 
     # Getters and Setters
-    def setGenerationNumber(self,genNum):
+    def setGenerationNumber(self, genNum):
         self.generationNumber = genNum
 
-    def setEncodingList(self, encode):
+    def setEncoding(self, encode):
             self.encodingList = encode
 
     def getEncoding(self):
@@ -32,7 +33,6 @@ class Encoding:
     def getGenerationNum(self):
         return self.generationNumber
 
-    # Actual Methods
     @staticmethod
     def file_len(fname):
         i = 0
@@ -48,10 +48,11 @@ class Encoding:
         for enc in self.encodingList:
             log.write(enc[0][0] + ',' + enc[0][1] + '\n')
 
-    def ArchiveLog(self, genNum):
-        fName = 'log_gen' + genNum
+    def archiveLog(self):
+        genNum = self.getGenerationNum
+        fName = 'archivedLogs/log_gen' + str(genNum)
         file = open(fName, 'w')
-        fName.write(genNum)
+        file.write(genNum)
         for enc in self.encodingList:
             file.write(enc[0][0] + ',' + enc[0][1] + '\n')
 
@@ -88,7 +89,7 @@ class Encoding:
         mutateChance = random.randint(0, 100)
         out = ''
         # for each number in the encoding
-        for x in encoding:
+        for enco in encoding:
             # 1% chance to mutate to a random strat
             if mutateChance == 42:
                 out = out + (random.randint(0, 5))
@@ -98,6 +99,28 @@ class Encoding:
         return out
 
 
+def spawn(prog, *args):                       # pass progname, cmdline args
+    stdinFd = sys.stdin.fileno()             # get descriptors for streams
+    stdoutFd = sys.stdout.fileno()            # normally stdin=0, stdout=1
+
+    parentStdin, childStdout = os.pipe()     # make two IPC pipe channels
+    childStdin,  parentStdout = os.pipe()     # pipe returns (inputfd, outoutfd)
+    pid = os.fork()                           # make a copy of this process
+    if pid:
+        os.close(childStdout)                 # in parent process after fork:
+        os.close(childStdin)                  # close child ends in parent
+        os.dup2(parentStdin,  stdinFd)        # my sys.stdin copy  = pipe1[0]
+        os.dup2(parentStdout, stdoutFd)       # my sys.stdout copy = pipe2[1]
+    else:
+        os.close(parentStdin)                 # in child process after fork:
+        os.close(parentStdout)                # close parent ends in child
+        os.dup2(childStdin,  stdinFd)         # my sys.stdin copy  = pipe2[0]
+        os.dup2(childStdout, stdoutFd)        # my sys.stdout copy = pipe1[1]
+        args = (prog,) + args
+        os.execvp(prog, args)                 # new program in this process
+        assert False, 'execvp failed!'        # os.exec call never returns here
+
+
 if __name__ == '__main__':
     e = Encoding()
     newEncodeList = []
@@ -105,28 +128,30 @@ if __name__ == '__main__':
     currEncoding = ''
     newFitness = -1
     newEncoding = ''
-
     currEncoding = e.getEncoding()
-
+    e.archiveLog()
+    # java -jar match-wrapper-1.3.2.jar "$(cat wrapper-commands.json)"
     for x in currEncoding:
         print(e)
-        currEncoding = e[0]
-        currFitness = e[1]
-        # start a new bot for each of the encodings
-        main.go()
+        currEncoding = x[0]
+        currFitness = x[1]
+        # TODO: start bots here
+        # create a new bot for each encoding
+        spawn('Java', '-jar', 'match-wrapper-1.3.2.jar', "$(cat wrapper-commands.json)")
         # returns a fitness score f eventually
         newEncodeList.append((newFitness, newEncoding))
     # TODO: figure out how to pass in the generation number
-    e.archiveLog(42)
-    e.setEncodingList(newEncodeList)
+    e.setEncoding(newEncodeList)
 
+    currList = e.getEncoding()
     # go through the list of encodings and crossbreed/mutate them
-    for x in range(0,len(e-1)):
+    for x in range(0, len(currList.getEncoding()-1)):
         # separates the two encodings
-        e1 = e[x][0]
-        e2 = e[x+1][0]
+        e1 = currList.getEncoding()[x][0]
+        e2 = currList.getEncoding()[x+1][0]
         # places the returned crossbred encodings in a temp list
         tmpList = e.crossbreed(e1, e2)
         # replaces the old encodings with the new encodings
-        e[x][0] = tmpList[1]
-        e[x+1][0] = tmpList[2]
+        currList[x][0] = tmpList[1]
+        currList[x+1][0] = tmpList[2]
+        e.setEncoding(currList)
