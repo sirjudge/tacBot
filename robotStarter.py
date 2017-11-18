@@ -48,9 +48,9 @@ class Encoding:
         for enc in self.encodingList:
             log.write(enc[0][0] + ',' + enc[0][1] + '\n')
 
-    def archiveLog(self):
-        genNum = self.getGenerationNum
-        fName = 'archivedLogs/log_gen' + str(genNum)
+    def ArchiveLog(self, genNum):
+        # TODO: this should put the file in a folder for easier file management
+        fName = 'log_gen' + genNum
         file = open(fName, 'w')
         file.write(genNum)
         for enc in self.encodingList:
