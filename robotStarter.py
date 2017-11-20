@@ -135,14 +135,11 @@ if __name__ == '__main__':
         print(e)
         currEncoding = x[0]
         currFitness = x[1]
-        # TODO: start bots here
         # create a new bot for each encoding
         spawn('Java', '-jar', 'match-wrapper-1.3.2.jar', "$(cat wrapper-commands.json)")
         # returns a fitness score f eventually
         newEncodeList.append((newFitness, newEncoding))
-    # TODO: figure out how to pass in the generation number
     e.setEncoding(newEncodeList)
-
     currList = e.getEncoding()
     # go through the list of encodings and crossbreed/mutate them
     for x in range(0, len(currList.getEncoding()-1)):

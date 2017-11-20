@@ -259,7 +259,8 @@ class Field:
                 print('diag[' + x + ']' + '['  + y + '] = ' + diag[x][y])
 
         print('Board = ' + currBoard)
-        # TODO: This is where the encoding should be made
+
+        # TODO: This is where the encoding of the board states should be made
         # if p1Count == 2 and p2Count == 0:
         #    return 3
         # elif p1Count == 1 and p2Count == 0:
@@ -271,12 +272,38 @@ class Field:
         # if p2Count == 1 and p1Count == 0:
         #    return 5
 
+        winList = []
         # (e1,e2,e3)
-        for x in range(0,2):
-            if horz[0][x] == 3:
-                # TODO: this needs to encode W for this box
-                pass
+        for x in range(0, 2):
+            if horz[0][x] >= 2:
+                winList.append('horz' + x)
+        for y in range(0, 2):
+            if horz[0][x] >= 2:
+                winList.append('vert' + y)
+        for z in range(0,1):
+            if diag[0][z] >= 1:
+                winList.append('diag' + z)
 
+        goodMoves = []
+        gooderMoves = []
+
+        # Loop through winList and filter out good + gooder moves
+        for q in winList:
+            if winList[q][0:3] == 'horz':
+                if winList[q][4] == 2:
+                    gooderMoves.append(winList[q])
+                elif winList[q][4] == 1:
+                    goodMoves.append(winList[q])
+            if winList[q][0:3] == 'vert':
+                if winList[q][4] == 2:
+                    gooderMoves.append(winList[q])
+                elif winList[q][4] == 1:
+                    goodMoves.append(winList[q])
+            if winList[q][0:3] == 'diag':
+                if winList[q][4] == 2:
+                    gooderMoves.append(winList[q])
+                elif winList[q][4] == 1:
+                    goodMoves.append(winList[q])
 
 # pretty self explanatory class. It has the x and y values of the move you want to make
 class Move:
