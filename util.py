@@ -1,22 +1,5 @@
 import sys
-import random
 
-
-# TODO
-# 1) Right now evaluations are in a list for each row/col/diag so we have
-#    2 or 3 evals to look at. Do something with that
-# 2) We need to do something with the evals to turn them into an encoding
-# 3) Once we have that encoding we need to log it to a file so we have a log
-#    so write to file?
-# 4) Also I need to actually evaluate a move first, so do that please
-# 5) Make sure mutate function mutates correctly
-# 6) Using encoding base class add functionality so that the encodings are
-#    actually being used
-# 7) Probably create encodings and tweak crossbreed and mutate chance
-# 8) Create fitness evaluation function will be based off win/loss/tie rate
-#    plus take into account who went first
-
-# TODO: get brody to send me python sub process stuff
 
 class Field:
     __EMPTY_FIELD = "."  # value for an empty field on microboard
@@ -72,7 +55,6 @@ class Field:
             for x in range(self.__NUM_COLS):
                 if self.isInActiveMicroboard(x, y) and (self.__mBoard[x][y] == self.__EMPTY_FIELD):
                     moves.append(Move(x, y))
-                    # TODO: based off this list of moves we have to look at our encodings and move
         return moves
 
     # Returns false if the the micro board has been finished
@@ -243,51 +225,41 @@ class Field:
         row3 = horz[1][2]
         currBoard = row1 + row2 + row3
 
-        for x in horz:
-            print('horz[' + x + '] = ' + horz[x])
-            for y in x:
-                print('horz[' + x + ']' + '['  + y + '] = ' + horz[x][y])
+        for a in horz:
+            print('horz[' + a + '] = ' + horz[a])
+            for b in a:
+                print('horz[' + a + ']' + '[' + b + '] = ' + horz[a][b])
 
-        for x in vert:
-            print('vert[' + x + '] = ' + vert[x])
-            for y in x:
-                print('vert[' + x + ']' + '['  + y + '] = ' + vert[x][y])
+        for c in vert:
+            print('vert[' + c + '] = ' + vert[c])
+            for d in c:
+                print('vert[' + c + ']' + '[' + d + '] = ' + vert[c][d])
 
-        for x in diag:
-            print('diag[' + x + '] = ' + diag[x])
-            for y in x:
-                print('diag[' + x + ']' + '['  + y + '] = ' + diag[x][y])
+        for e in diag:
+            print('diag[' + e + '] = ' + diag[e])
+            for f in e:
+                print('diag[' + e + ']' + '[' + f + '] = ' + diag[e][f])
 
         print('Board = ' + currBoard)
 
-        # TODO: This is where the encoding of the board states should be made
-        # if p1Count == 2 and p2Count == 0:
-        #    return 3
-        # elif p1Count == 1 and p2Count == 0:
-        #    return 2
-        # elif p1Count == 0 and p2Count == 0:
-        #    return 1
-        # if p2Count == 2 and p1Count == 0:
-        #    return 4
-        # if p2Count == 1 and p1Count == 0:
-        #    return 5
-
         winList = []
         # (e1,e2,e3)
-        for x in range(0, 2):
-            if horz[0][x] >= 2:
-                winList.append('horz' + x)
-        for y in range(0, 2):
-            if horz[0][x] >= 2:
-                winList.append('vert' + y)
-        for z in range(0,1):
-            if diag[0][z] >= 1:
-                winList.append('diag' + z)
+        for g in range(0, 2):
+            if horz[0][g] >= 2:
+                winList.append('horz' + str(g))
+        for h in range(0, 2):
+            if horz[0][h] >= 2:
+                winList.append('vert' + str(h))
+        for i in range(0, 1):
+            if diag[0][i] >= 1:
+                winList.append('diag' + str(i))
 
+        # good move to make
         goodMoves = []
+        # gooder move to make
         gooderMoves = []
 
-        # Loop through winList and filter out good + gooder moves
+        # Loop through winList and filter good + gooder moves
         for q in winList:
             if winList[q][0:3] == 'horz':
                 if winList[q][4] == 2:
@@ -304,6 +276,7 @@ class Field:
                     gooderMoves.append(winList[q])
                 elif winList[q][4] == 1:
                     goodMoves.append(winList[q])
+
 
 # pretty self explanatory class. It has the x and y values of the move you want to make
 class Move:

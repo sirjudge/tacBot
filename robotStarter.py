@@ -14,8 +14,10 @@ class Encoding:
     def __init__(self):
         log = open('encoding.txt', 'r+')
         for i, line in enumerate(log):
-            if i == 25:
+            # First line of a file is generation number
+            if i == 1:
                 self.generationNumber = int(line)
+            # Otherwise it will be a tuple of (encoding,fitness level) so we split the line up by ','
             else:
                 self.encodingList.append(line.split(','))
         log.close()
@@ -33,6 +35,7 @@ class Encoding:
     def getGenerationNum(self):
         return self.generationNumber
 
+    # returns the length of a file
     @staticmethod
     def file_len(fname):
         i = 0
@@ -44,7 +47,7 @@ class Encoding:
     def writeToLog(self):
         log = open('encoding.txt', 'r+')
         log.truncate()
-        log.write('' + self.generationNumber + '\n')
+        log.write('' + str(self.generationNumber) + '\n')
         for enc in self.encodingList:
             log.write(enc[0][0] + ',' + enc[0][1] + '\n')
 
@@ -89,21 +92,20 @@ class Encoding:
         mutateChance = random.randint(0, 100)
         out = ''
         # for each number in the encoding
-        for enco in encoding:
+        for eChar in encoding:
             # 1% chance to mutate to a random strat
             if mutateChance == 42:
                 out = out + (random.randint(0, 5))
             # 99% chance to keep the same strat
             else:
-                out = out + x
+                out = out + eChar
         return out
 
 
 def spawn(prog, *args):                       # pass progname, cmdline args
-    stdinFd = sys.stdin.fileno()             # get descriptors for streams
+    stdinFd = sys.stdin.fileno()              # get descriptors for streams
     stdoutFd = sys.stdout.fileno()            # normally stdin=0, stdout=1
-
-    parentStdin, childStdout = os.pipe()     # make two IPC pipe channels
+    parentStdin, childStdout = os.pipe()      # make two IPC pipe channels
     childStdin,  parentStdout = os.pipe()     # pipe returns (inputfd, outoutfd)
     pid = os.fork()                           # make a copy of this process
     if pid:
@@ -122,26 +124,34 @@ def spawn(prog, *args):                       # pass progname, cmdline args
 
 
 if __name__ == '__main__':
-    e = Encoding()
-    newEncodeList = []
+    e = Encoding()                      # Create the list of encodings
+    newEncodeList = []                  # set variable stuff
     currFitness = -1
     currEncoding = ''
     newFitness = -1
     newEncoding = ''
-    currEncoding = e.getEncoding()
+
+    currEncoding = e.getEncoding()      # create local variable for encoding list
     e.archiveLog()
     # java -jar match-wrapper-1.3.2.jar "$(cat wrapper-commands.json)"
+
+    # For each encoding in the encoding list, create a new process that starts a new main.py
+    # this for loop is what starts all my bots
     for x in currEncoding:
         print(e)
         currEncoding = x[0]
         currFitness = x[1]
         # create a new bot for each encoding
         spawn('Java', '-jar', 'match-wrapper-1.3.2.jar', "$(cat wrapper-commands.json)")
-        # returns a fitness score f eventually
-        newEncodeList.append((newFitness, newEncoding))
+
+    # TODO: This maybe shouldn't happen here but we need to write the new encodings down
+    newEncodeList.append((newFitness, newEncoding))
+
     e.setEncoding(newEncodeList)
     currList = e.getEncoding()
+
     # go through the list of encodings and crossbreed/mutate them
+    # the crossbreed method will crossbreed them first and then mutate them
     for x in range(0, len(currList.getEncoding()-1)):
         # separates the two encodings
         e1 = currList.getEncoding()[x][0]

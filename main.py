@@ -2,10 +2,7 @@
 from util import *
 import robotStarter
 import re
-
-import mmap
-import json
-from pprint import pprint
+import random
 
 
 class Decoding:
@@ -85,11 +82,13 @@ class BotStarter:
         # if number of moves is greater than 0 make a random move
 
     # using the regex 'winner\"\d' search the file to find the winner's ID number
-    def whoWon(self):
+    @staticmethod
+    def whoWon():
         resultFile = open('resultfile.json')
-        s = mmap.mmap(resultFile.fileno(), 0, access=mmap.ACCESS_READ)
-        regex = re.compile('.*winner\":.*')
-        winnerID = -1
+
+        # Regex stuff
+        # s = mmap.mmap(resultFile.fileno(), 0, access=mmap.ACCESS_READ)
+        # regex = re.compile('.*winner\":.*')
 
         # reads the file, closes the file, using regex searches for who won the game
         resultRead = resultFile.read()
