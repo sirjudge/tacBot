@@ -205,7 +205,8 @@ class Field:
             diagEvals.append((self.eval(currDiag), currDiag))
         return diagEvals
 
-    def threevalToEncode(self, horz, vert, diag):
+    @staticmethod
+    def threevalToEncode(horz, vert, diag):
         # one eval for each row
         horzEval1 = horz[0][0]
         horzEval2 = horz[0][1]

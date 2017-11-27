@@ -5,22 +5,21 @@ import sys
 
 class Encoding:
     encodingList = []
-    generationNumber = -1
+    generationNumber = 0
+    log = open('encoding.txt', 'r+')
     # will be a list of tuples
     # (encoding,fitness score)
 
     # Line in encoding log will be
     # encoding, fitness score
     def __init__(self):
-        log = open('encoding.txt', 'r+')
-        for i, line in enumerate(log):
+        for i, line in enumerate(self.log):
             # First line of a file is generation number
-            if i == 1:
+            if i == 0:
                 self.generationNumber = int(line)
             # Otherwise it will be a tuple of (encoding,fitness level) so we split the line up by ','
             else:
                 self.encodingList.append(line.split(','))
-        log.close()
 
     # Getters and Setters
     def setGenerationNumber(self, genNum):
@@ -34,6 +33,12 @@ class Encoding:
 
     def getGenerationNum(self):
         return self.generationNumber
+
+    def resetFile(self):
+        self.log.truncate()
+        self.log.write(str(self.getGenerationNum()))
+        for q in self.getEncoding():
+            self.log.write(str(q) + '\n')
 
     # returns the length of a file
     @staticmethod
@@ -162,3 +167,4 @@ if __name__ == '__main__':
         currList[x][0] = tmpList[1]
         currList[x+1][0] = tmpList[2]
         e.setEncoding(currList)
+    e.resetFile()
