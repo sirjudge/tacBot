@@ -7,11 +7,9 @@ class Encoding:
     encodingList = []
     generationNumber = 0
     log = open('encoding.txt', 'r+')
-    # will be a list of tuples
-    # (encoding,fitness score)
 
     # Line in encoding log will be
-    # encoding, fitness score
+    # board encoding, strategy/policy, fitness score
     def __init__(self):
         for i, line in enumerate(self.log):
             # First line of a file is generation number
@@ -34,6 +32,7 @@ class Encoding:
     def getGenerationNum(self):
         return self.generationNumber
 
+    # TODO this needs to be changed to reflect addition of board encoding mapped to a policy
     def resetFile(self):
         self.log.truncate()
         self.log.write(str(self.getGenerationNum()))
@@ -54,15 +53,15 @@ class Encoding:
         log.truncate()
         log.write('' + str(self.generationNumber) + '\n')
         for enc in self.encodingList:
-            log.write(enc[0][0] + ',' + enc[0][1] + '\n')
+            log.write(enc[0][0] + ',' + enc[0][1] + ',' + enc[0][2] + '\n')
 
     def archiveLog(self):
         genNum = self.getGenerationNum
         fName = 'archivedLogs/log_gen' + str(genNum)
-        file = open(fName, 'w')
+        file = open(fName, 'r+')
         file.write(genNum)
         for enc in self.encodingList:
-            file.write(enc[0][0] + ',' + enc[0][1] + '\n')
+            file.write(enc[0][0] + ',' + enc[0][1] + ',' + enc[0][2] + '\n')
 
     def crossbreed(self, encoding1, encoding2):
         # First part of both encodings
@@ -159,8 +158,8 @@ if __name__ == '__main__':
     # the crossbreed method will crossbreed them first and then mutate them
     for x in range(0, len(currList.getEncoding()-1)):
         # separates the two encodings
-        e1 = currList.getEncoding()[x][0]
-        e2 = currList.getEncoding()[x+1][0]
+        e1 = currList.getEncoding()[x][1]
+        e2 = currList.getEncoding()[x+1][1]
         # places the returned crossbred encodings in a temp list
         tmpList = e.crossbreed(e1, e2)
         # replaces the old encodings with the new encodings
