@@ -5,79 +5,15 @@ import re
 import random
 import json
 import subprocess
-from random import randint
 
-
-# decoding list is a list of tuples (encoding,fitness)
-class Decoding:
-    decodingList = []
-    generationNumber = -1
-    tmpFile = open('encoding.txt', 'r+')
-
-    def __init__(self):
-        e = robotStarter.Encoding()
-        self.decodingList = e.getEncoding()
-
-    # Method simply creates 500 random strategies
-    # Will create 10 encodings
-    def createRandomFile(self):
-        sList = ['0', '1', '*']
-        # Creates 10 files
-        for notOriginalName in range(0, 10):
-            fname = 'encoding' + str(notOriginalName) + '.txt'
-            file = open(fname, 'r+')
-            # Clear the file
-            file.truncate()
-            # Create 500 random strats
-            for x in range(0, 500):
-                for y in range(0, 9):
-                    i = randint(0, 2)
-                    file.write(sList[i])
-                randomList = random.sample(range(9), 9)
-                encString = ''
-                for z in randomList:
-                    encString = encString + str(z)
-                file.write(',' + encString + '\n')
-
-
-    @staticmethod
-    def file_len(fname):
-        i = 0
-        with open(fname) as f:
-            for i, l in enumerate(f):
-                pass
-        return i + 1
-
-    def getDecodingList(self):
-        return self.decodingList
-
-    def delFirstLine(self):
-        tmpFile = open('encoding.txt', 'r+')
-        with self.tmpFile as fin:
-            data = fin.read().splitlines(True)
-        with self.tmpFile as fout:
-            fout.writelines(data[1:])
-
-    def getFirstLine(self):
-        tmpFile = open('encoding.txt', 'r+')
-        with self.tmpFile as f:
-            first_line = f.readline()
-            efl = first_line.split(',')
-        return efl[0]
-
-    def resetFile(self):
-        self.tmpFile.truncate()
-        self.tmpFile.write(str(self.generationNumber) + '\n')
-        for q in self.getDecodingList():
-            self.tmpFile.write(q[0] + ',' + q[1] + '\n')
 
 def go():
     bot = BotStarter()
     parser = BotParser(bot)
     # Comment/uncomment the line below to start/stop the parser from actually running
-    #parser.run()
+    parser.run()
     file = open('out.txt', 'r+')
-    file.write('Winner = ' + str(bot.whoWon()))
+    file.write('Winner = ' + bot.load_from_json())
 
 
 class BotStarter:
@@ -85,16 +21,10 @@ class BotStarter:
 
     def __init__(self):
         random.seed()  # helps create a more random environment
-        d = Decoding()
-        #d.createRandomFile()
+        d = robotStarter.Decoding()
+        # Uncomment below if you want to re-create a random set of encodings AKA Gen 1
+        # d.createRandomFile()
 
-        # self.currEncoding = d.getFirstLine()
-        # d.delFirstLine()
-
-        # read the encoding
-        # delete that line from the encoding file from a temp file
-        # temp file acts as queue
-        # if number of moves is greater than 0 make a random move
 
     # TODO come back to this later
     def load_from_json(self):
@@ -163,17 +93,27 @@ class BotStarter:
     
     ABOVE THIS IS OLD CODE. IT DOES NOT WORK FUTURE NICO DON'T USE ANY OF THIS PLEASE. THANK YOU. 
     """
-
-    def wwbd2(self, boardEnc, fname, state):
-
-
-
-        # Below searches for the needed strategy for the given encoding at the time of the move
-        hosts_process = subprocess.Popen(['grep', boardEnc, fname], stdout=subprocess.PIPE)
+    @staticmethod
+    def grepSearch(searchString, fileName):
+        hosts_process = subprocess.Popen(['grep', searchString, fileName], stdout=subprocess.PIPE)
         hosts_out, hosts_err = hosts_process.communicate()
         stratLookup = str(hosts_out)[2:-3]
         print(stratLookup)
         eandsList = stratLookup.split(',')
+        return eandsList
+
+    def wwbd2(self, fname, state):
+        currField = state.getField()
+        horzEval = currField.horizontal()
+        vertEval = currField.vertical()
+        diagEval = currField.diagonal()
+        stateList = [horzEval, vertEval, diagEval]
+        print(stateList)
+        evalReturn = currField.evalMacroboard()
+        encodingNeeded = self.grepSearch(evalReturn, fname)
+        eandsList = encodingNeeded
+
+        # Below searches for the needed strategy for the given encoding at the time of the move
         # encoding of board
         print(eandsList[0])
         # given strategy for that board
@@ -234,7 +174,7 @@ class BotStarter:
                             return Move(x, y)
 
     def doMove(self, state):
-        self.wwbd2('111111111', 'test.txt', state)
+        # TODO: this logic is wrong. fix it
 
         moves = state.getField().getAvailableMoves()
         # TODO: Move based on the encoding
@@ -242,9 +182,6 @@ class BotStarter:
             return moves[random.randrange(len(moves))]
         else:
             return None
-        #f = state.getField
-        #return self.wwbd(f)
-
 
 if __name__ == '__main__':
     go()

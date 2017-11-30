@@ -1,11 +1,111 @@
 import random
 import os
 import sys
+from random import randint
+
+
+# decoding list is a list of tuples (encoding,fitness)
+class Decoding:
+    geneList = []
+    generationNumber = -1
+    dnaNum = -1
+
+    def __init__(self):
+        for notOriginalName in range(0, 10):
+            fname = 'encoding' + str(notOriginalName) + '.txt'
+            file = open(fname, 'r+')
+            i = 0
+            decodeList = []
+            for line in file:
+                if i == 0:
+                    self.generationNumber = line
+                elif i == 1:
+                    self.dnaNum = line
+                else:
+                    decodeList.append(line)
+            self.geneList.append(decodeList)
+
+    # Getters and Setters
+    def setGenerationNumber(self, genNum):
+        self.generationNumber = genNum
+
+    def setEncoding(self, encode):
+        self.encodingList = encode
+
+    def getEncoding(self):
+        return self.encodingList
+
+    def getGenerationNum(self):
+        return self.generationNumber
+
+    # Method simply creates 500 random strategies
+    # Will create 10 encodings
+    @staticmethod
+    def createRandomFile():
+        sList = ['0', '1', '*']
+        # Creates 10 files
+        for notOriginalName in range(0, 10):
+            fname = 'encoding' + str(notOriginalName) + '.txt'
+            file = open(fname, 'r+')
+            # Clear the file
+            file.truncate()
+            # Write the Generation Number
+            file.write('0')
+            # Write the encoding name
+            file.write(str(notOriginalName))
+            # Create 500 random strats
+            for x in range(0, 500):
+                for y in range(0, 9):
+                    i = randint(0, 2)
+                    file.write(sList[i])
+                randomList = random.sample(range(9), 9)
+                encString = ''
+                for z in randomList:
+                    encString = encString + str(z)
+                file.write(',' + encString + '\n')
+
+
+    @staticmethod
+    def file_len(fname):
+        i = 0
+        with open(fname) as f:
+            for i, l in enumerate(f):
+                pass
+        return i + 1
+
+    # TODO: go through and change all logic involving get decoding list
+    def getDecodingList(self):
+        return self.geneList
+
+    # TODO: delFirstLIne is should longer used as a function
+    def delFirstLine(self):
+        tmpFile = open('encoding.txt', 'r+')
+        with self.tmpFile as fin:
+            data = fin.read().splitlines(True)
+        with self.tmpFile as fout:
+            fout.writelines(data[1:])
+
+    # TODO: getFirstLIne should longer used as a function in conjunction iwth delFirstLine
+    def getFirstLine(self):
+        tmpFile = open('encoding.txt', 'r+')
+        with self.tmpFile as f:
+            first_line = f.readline()
+            efl = first_line.split(',')
+        return efl[0]
+
+    # TODO: rewrite this, it is using old logic and also still uses tmpFile, which should not really exist anymore
+    def resetFile(self):
+        self.tmpFile.truncate()
+        self.tmpFile.write(str(self.generationNumber) + '\n')
+        self.tmpFile.write
+        for q in self.getDecodingList():
+            self.tmpFile.write(q[0] + ',' + q[1] + '\n')
 
 
 class Encoding:
     encodingList = []
-    generationNumber = 0
+    generationNumber = -1
+    geneNum = -1
     log = open('encoding.txt', 'r+')
 
     # Line in encoding log will be
@@ -14,7 +114,9 @@ class Encoding:
         for i, line in enumerate(self.log):
             # First line of a file is generation number
             if i == 0:
-                self.generationNumber = int(line)
+                self.generationNumber = line
+            elif i == 1:
+                self.geneNum = line
             # Otherwise it will be a tuple of (encoding,fitness level) so we split the line up by ','
             else:
                 self.encodingList.append(line.split(','))
@@ -32,7 +134,6 @@ class Encoding:
     def getGenerationNum(self):
         return self.generationNumber
 
-    # TODO this needs to be changed to reflect addition of board encoding mapped to a policy
     def resetFile(self):
         self.log.truncate()
         self.log.write(str(self.getGenerationNum()))
@@ -64,6 +165,8 @@ class Encoding:
             file.write(enc[0][0] + ',' + enc[0][1] + ',' + enc[0][2] + '\n')
 
     def crossbreed(self, encoding1, encoding2):
+        # TODO: fix the logic. Have to open each file, put each file into a list, swap half the list
+        # TODO: Maybe consider just writing a whole new method and then deleting this one
         # First part of both encodings
         e1f = ''
         e2f = ''
@@ -92,6 +195,7 @@ class Encoding:
 
     @staticmethod
     def mutate(encoding):
+        # TODO: Fix the logic with this one. It's just full wrong.
         # Choose a random number between 1 and 100 to be our chance to mutate
         mutateChance = random.randint(0, 100)
         out = ''
@@ -128,6 +232,7 @@ def spawn(prog, *args):                       # pass progname, cmdline args
 
 
 if __name__ == '__main__':
+    # TODO: Double check this stuff. I think some of it may also be wrong
     e = Encoding()                      # Create the list of encodings
     newEncodeList = []                  # set variable stuff
     currFitness = -1

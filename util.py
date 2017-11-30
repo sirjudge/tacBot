@@ -26,6 +26,19 @@ class Field:
         for row in range(self.__NUM_ROWS // 3):
             self.__mMacroboard.append(list(null_row))
 
+    def evalMacroboard(self):
+        outEval = ''
+        for row in self.__mMacroboard:
+            for val in row:
+                if val == self.getMyId():
+                    outEval += '1'
+                elif val == self.getOpponentId():
+                    outEval += '0'
+                else:
+                    outEval += '*'
+        return outEval
+
+
     # sets the values of the board from a given string s of inputs
     def parseFromString(self, s):
         s = s.replace(";", ",")  # replaces ';' with ','
@@ -114,6 +127,7 @@ class Field:
 
     def setOpponentId(self, i):
         self.__opponentId = i
+
 
     @staticmethod
     def eval(sList):
