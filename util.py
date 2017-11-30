@@ -47,6 +47,10 @@ class Field:
                 self.__mMacroboard[x][y] = r[counter]
                 counter += 1
 
+    # Returns true if space x,y is an empty field
+    def isActiveSpace(self, x, y):
+        return self.__mBoard[x][y] == self.__EMPTY_FIELD
+
     # returns a list of available moves
     # ie. any space that hasn't been set in a miniboard that hasn't been finished
     def getAvailableMoves(self):
@@ -120,25 +124,19 @@ class Field:
         # each move is either 'X', 'O', or '_'
         # set up counter variables
 
-        # sList will be horzEval,vertEval,diagEval
+        # sList will be horzEval, vertEval, diagEval
         # X is current player
         # Y is opponent
         # _ is a blank space
-        for x in sList:
-            for y in x:
-                if y == 'X':
+        evalList = []
+        for typeEval in sList:
+            for move in typeEval:
+                if move == 'X':
                     p1Count += 1
-                elif y == 'O':
+                elif move == 'O':
                     p2Count += 1
-
-        # BELOW THIS IS OLD CODE
-        for x in sList:
-            if x == 'X':
-                p1Count += 1
-            elif x == 'O':
-                p2Count += 1
+            evalList.append(typeEval, p1Count, p2Count)
         # Evaluates what case the board is in
-        # TODO --> add a table here that says what each thing does
         # not important
         if p1Count == 0 and p2Count == 0:
             return 1
@@ -157,7 +155,6 @@ class Field:
         # win for player 1, lose for player 2
         elif p1Count == 2 and p2Count == 1:
             return 6
-
         # lose for player 1, win for player 2
         elif p1Count == 0 and p2Count == 2:
             return 7
@@ -167,9 +164,6 @@ class Field:
         # Tie for both
         elif p1Count == 2 and p2Count == 2:
             return 9
-
-
-
 
     # moves are done using playerID not X or O - usually an integer, 0 or 1
     # getPlayerID method takes an x and a y argument for where in the board you go
@@ -226,20 +220,6 @@ class Field:
 
     @staticmethod
     def threevalToEncode(horz, vert, diag):
-        # one eval for each row
-        horzEval1 = horz[0][0]
-        horzEval2 = horz[0][1]
-        horzEval3 = horz[0][2]
-
-        # One eval for each column
-        vertEval1 = vert[0][0]
-        vertEval2 = vert[0][1]
-        vertEval3 = vert[0][2]
-
-        # One eval for each diagonal
-        diagEval1 = diag[0][0]
-        diagEval2 = diag[0][1]
-
         row1 = horz[1][0]
         row2 = horz[1][1]
         row3 = horz[1][2]
@@ -261,7 +241,6 @@ class Field:
                 print('diag[' + e + ']' + '[' + f + '] = ' + diag[e][f])
 
         print('Board = ' + currBoard)
-
         winList = []
         # (e1,e2,e3)
         for g in range(0, 2):
@@ -273,12 +252,10 @@ class Field:
         for i in range(0, 1):
             if diag[0][i] >= 1:
                 winList.append('diag' + str(i))
-
         # good move to make
         goodMoves = []
         # gooder move to make
         gooderMoves = []
-
         # Loop through winList and filter good + gooder moves
         for q in winList:
             if winList[q][0:3] == 'horz':

@@ -4,6 +4,7 @@ import robotStarter
 import re
 import random
 import json
+import subprocess
 from random import randint
 
 
@@ -21,10 +22,13 @@ class Decoding:
     # Will create 10 encodings
     def createRandomFile(self):
         sList = ['0', '1', '*']
-
+        # Creates 10 files
         for notOriginalName in range(0, 10):
             fname = 'encoding' + str(notOriginalName) + '.txt'
             file = open(fname, 'r+')
+            # Clear the file
+            file.truncate()
+            # Create 500 random strats
             for x in range(0, 500):
                 for y in range(0, 9):
                     i = randint(0, 2)
@@ -34,6 +38,7 @@ class Decoding:
                 for z in randomList:
                     encString = encString + str(z)
                 file.write(',' + encString + '\n')
+
 
     @staticmethod
     def file_len(fname):
@@ -81,7 +86,7 @@ class BotStarter:
     def __init__(self):
         random.seed()  # helps create a more random environment
         d = Decoding()
-        d.createRandomFile()
+        #d.createRandomFile()
 
         # self.currEncoding = d.getFirstLine()
         # d.delFirstLine()
@@ -95,7 +100,7 @@ class BotStarter:
     def load_from_json(self):
         with open('resultfile.txt') as f:
             data = json.load(f)
-        winner = self.json_data_to_winner(data)
+        winner = self.jsonDataToWinner(data)
         return winner
 
     @staticmethod
@@ -130,7 +135,7 @@ class BotStarter:
     #  Macro
     # <WWLWWTWLW>
 
-    def wwbd(self, field):
+    """def wwbd(self, field):
         prefMacroList = self.currEncoding[0:8]
         prefMacroList = -1
         microboardStrats = []
@@ -155,16 +160,90 @@ class BotStarter:
                 # TODO return this move because it is the most wanted
                 # ask brody about how to do the math here because what?
                 return Move(-1, -1)
+    
+    ABOVE THIS IS OLD CODE. IT DOES NOT WORK FUTURE NICO DON'T USE ANY OF THIS PLEASE. THANK YOU. 
+    """
+
+    def wwbd2(self, boardEnc, fname, state):
+
+
+
+        # Below searches for the needed strategy for the given encoding at the time of the move
+        hosts_process = subprocess.Popen(['grep', boardEnc, fname], stdout=subprocess.PIPE)
+        hosts_out, hosts_err = hosts_process.communicate()
+        stratLookup = str(hosts_out)[2:-3]
+        print(stratLookup)
+        eandsList = stratLookup.split(',')
+        # encoding of board
+        print(eandsList[0])
+        # given strategy for that board
+        print(eandsList[1])
+
+        # For each box in the preferedBoxes
+        for box in eandsList[1]:
+            # ROW 1
+            # =============================
+            if box == 0:
+                for x in range(0, 2):
+                    for y in range(0, 2):
+                        if state.getField().isInActiveMicroBoard(x, y) and state.getField().isisActiveSpace(x, y):
+                            return Move(x, y)
+            elif box == 1:
+                for x in range(3, 5):
+                    for y in range(0, 2):
+                        if state.getField().isInActiveMicroBoard(x, y) and state.getField().isisActiveSpace(x, y):
+                            return Move(x, y)
+            elif box == 2:
+                for x in range(6, 8):
+                    for y in range(0, 2):
+                        if state.getField().isInActiveMicroBoard(x, y) and state.getField().isisActiveSpace(x, y):
+                            return Move(x, y)
+            # ROW 2
+            # =============================
+            elif box == 3:
+                for x in range(0, 2):
+                    for y in range(3, 5):
+                        if state.getField().isInActiveMicroBoard(x, y) and state.getField().isisActiveSpace(x, y):
+                            return Move(x, y)
+            elif box == 4:
+                for x in range(3, 5):
+                    for y in range(0, 2):
+                        if state.getField().isInActiveMicroBoard(x, y) and state.getField().isisActiveSpace(x, y):
+                            return Move(x, y)
+            elif box == 5:
+                for x in range(6, 8):
+                    for y in range(3, 5):
+                        if state.getField().isInActiveMicroBoard(x, y) and state.getField().isisActiveSpace(x, y):
+                            return Move(x, y)
+            # ROW 3
+            # =============================
+            elif box == 6:
+                for x in range(0, 2):
+                    for y in range(6, 8):
+                        if state.getField().isInActiveMicroBoard(x, y) and state.getField().isisActiveSpace(x, y):
+                            return Move(x, y)
+            elif box == 7:
+                for x in range(3, 5):
+                    for y in range(6, 8):
+                        if state.getField().isInActiveMicroBoard(x, y) and state.getField().isisActiveSpace(x, y):
+                            return Move(x, y)
+            elif box == 8:
+                for x in range(6, 8):
+                    for y in range(6, 8):
+                        if state.getField().isInActiveMicroBoard(x, y) and state.getField().isisActiveSpace(x, y):
+                            return Move(x, y)
 
     def doMove(self, state):
-        # moves = state.getField().getAvailableMoves()
+        self.wwbd2('111111111', 'test.txt', state)
+
+        moves = state.getField().getAvailableMoves()
         # TODO: Move based on the encoding
-        # if len(moves) > 0:
-        #     return moves[random.randrange(len(moves))]
-        # else:
-        #     return None
-        f = state.getField
-        return self.wwbd(f)
+        if len(moves) > 0:
+            return moves[random.randrange(len(moves))]
+        else:
+            return None
+        #f = state.getField
+        #return self.wwbd(f)
 
 
 if __name__ == '__main__':
