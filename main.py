@@ -17,51 +17,23 @@ class Decoding:
         e = robotStarter.Encoding()
         self.decodingList = e.getEncoding()
 
-    # Method simply creates 100 encodings
-    # Used to create the first generation
+    # Method simply creates 500 random strategies
+    # Will create 10 encodings
     def createRandomFile(self):
         sList = ['0', '1', '*']
-        nList1 = ['0', '1', '2', '3', '4', '5', '6', '7', '8']
-        nList2 = []
-        self.tmpFile.truncate()
-        self.tmpFile.write('0\n')
-        listNum = 1
-        for x in range(0, 500):
-            for y in range(0, 9):
-                i = randint(0, 2)
-                self.tmpFile.write(sList[i])
-            self.tmpFile.write(',')
-            for z in range(0, 9):
-                if listNum == 1:
-                    for q in range(len(nList1)-1):
-                        if len(nList1) == 1:
-                            n = nList1[0]
-                            nList1.pop(0)
-                            nList2.append(n)
-                            self.tmpFile.write(n)
-                            listNum = 2
-                        else:
-                            g = randint(0, len(nList1)-1)
-                            n = nList1[g]
-                            nList1.pop(g)
-                            self.tmpFile.write(n)
-                            nList2.append(n)
-                elif listNum == 1:
-                    for q in range(len(nList2)-1):
-                        if len(nList2) == 1:
-                            n = nList1[0]
-                            nList2.pop(0)
-                            nList1.append(n)
-                            self.tmpFile.write(n)
-                            listNum = 1
-                        else:
-                            g = randint(0, len(nList2)-1)
-                            print('g: ' + str(g))
-                            n = nList1[g]
-                            nList1.pop(g)
-                            self.tmpFile.write(n)
-                            nList2.append(g)
-            self.tmpFile.write(',0\n')
+
+        for notOriginalName in range(0, 10):
+            fname = 'encoding' + str(notOriginalName) + '.txt'
+            file = open(fname, 'r+')
+            for x in range(0, 500):
+                for y in range(0, 9):
+                    i = randint(0, 2)
+                    file.write(sList[i])
+                randomList = random.sample(range(9), 9)
+                encString = ''
+                for z in randomList:
+                    encString = encString + str(z)
+                file.write(',' + encString + '\n')
 
     @staticmethod
     def file_len(fname):

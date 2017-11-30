@@ -139,18 +139,37 @@ class Field:
                 p2Count += 1
         # Evaluates what case the board is in
         # TODO --> add a table here that says what each thing does
-        if p1Count == 2 and p2Count == 0:
-            return 3
+        # not important
+        if p1Count == 0 and p2Count == 0:
+            return 1
+        # not important
         elif p1Count == 1 and p2Count == 0:
             return 2
-        elif p1Count == 0 and p2Count == 0:
-            return 1
-        if p2Count == 2 and p1Count == 0:
+        # win for player 1, lose for player 2
+        elif p1Count == 2 and p2Count == 0:
+            return 3
+        # not important
+        elif p1Count == 0 and p2Count == 1:
             return 4
-        if p2Count == 1 and p1Count == 0:
+        # not important
+        elif p1Count == 1 and p2Count == 1:
             return 5
+        # win for player 1, lose for player 2
+        elif p1Count == 2 and p2Count == 1:
+            return 6
 
-    # ABOVE THIS IS OLD CODE
+        # lose for player 1, win for player 2
+        elif p1Count == 0 and p2Count == 2:
+            return 7
+        # lose for player 1, win for player 2
+        elif p1Count == 1 and p2Count == 2:
+            return 8
+        # Tie for both
+        elif p1Count == 2 and p2Count == 2:
+            return 9
+
+
+
 
     # moves are done using playerID not X or O - usually an integer, 0 or 1
     # getPlayerID method takes an x and a y argument for where in the board you go
