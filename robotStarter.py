@@ -5,20 +5,19 @@ import sys
 
 class Encoding:
     encodingList = []
-    generationNumber = -1
-    # will be a list of tuples
-    # (encoding,fitness score)
+    generationNumber = 0
+    log = open('encoding.txt', 'r+')
 
     # Line in encoding log will be
-    # encoding, fitness score
+    # board encoding, strategy/policy, fitness score
     def __init__(self):
-        log = open('encoding.txt', 'r+')
-        for i, line in enumerate(log):
-            if i == 25:
+        for i, line in enumerate(self.log):
+            # First line of a file is generation number
+            if i == 0:
                 self.generationNumber = int(line)
+            # Otherwise it will be a tuple of (encoding,fitness level) so we split the line up by ','
             else:
                 self.encodingList.append(line.split(','))
-        log.close()
 
     # Getters and Setters
     def setGenerationNumber(self, genNum):
@@ -33,6 +32,14 @@ class Encoding:
     def getGenerationNum(self):
         return self.generationNumber
 
+    # TODO this needs to be changed to reflect addition of board encoding mapped to a policy
+    def resetFile(self):
+        self.log.truncate()
+        self.log.write(str(self.getGenerationNum()))
+        for q in self.getEncoding():
+            self.log.write(str(q) + '\n')
+
+    # returns the length of a file
     @staticmethod
     def file_len(fname):
         i = 0
@@ -44,17 +51,17 @@ class Encoding:
     def writeToLog(self):
         log = open('encoding.txt', 'r+')
         log.truncate()
-        log.write('' + self.generationNumber + '\n')
+        log.write('' + str(self.generationNumber) + '\n')
         for enc in self.encodingList:
-            log.write(enc[0][0] + ',' + enc[0][1] + '\n')
+            log.write(enc[0][0] + ',' + enc[0][1] + ',' + enc[0][2] + '\n')
 
-    def ArchiveLog(self, genNum):
-        # TODO: this should put the file in a folder for easier file management
-        fName = 'log_gen' + genNum
-        file = open(fName, 'w')
+    def archiveLog(self):
+        genNum = self.getGenerationNum
+        fName = 'archivedLogs/log_gen' + str(genNum)
+        file = open(fName, 'r+')
         file.write(genNum)
         for enc in self.encodingList:
-            file.write(enc[0][0] + ',' + enc[0][1] + '\n')
+            file.write(enc[0][0] + ',' + enc[0][1] + ',' + enc[0][2] + '\n')
 
     def crossbreed(self, encoding1, encoding2):
         # First part of both encodings
@@ -89,21 +96,20 @@ class Encoding:
         mutateChance = random.randint(0, 100)
         out = ''
         # for each number in the encoding
-        for enco in encoding:
+        for eChar in encoding:
             # 1% chance to mutate to a random strat
             if mutateChance == 42:
                 out = out + (random.randint(0, 5))
             # 99% chance to keep the same strat
             else:
-                out = out + x
+                out = out + eChar
         return out
 
 
 def spawn(prog, *args):                       # pass progname, cmdline args
-    stdinFd = sys.stdin.fileno()             # get descriptors for streams
+    stdinFd = sys.stdin.fileno()              # get descriptors for streams
     stdoutFd = sys.stdout.fileno()            # normally stdin=0, stdout=1
-
-    parentStdin, childStdout = os.pipe()     # make two IPC pipe channels
+    parentStdin, childStdout = os.pipe()      # make two IPC pipe channels
     childStdin,  parentStdout = os.pipe()     # pipe returns (inputfd, outoutfd)
     pid = os.fork()                           # make a copy of this process
     if pid:
@@ -122,33 +128,42 @@ def spawn(prog, *args):                       # pass progname, cmdline args
 
 
 if __name__ == '__main__':
-    e = Encoding()
-    newEncodeList = []
+    e = Encoding()                      # Create the list of encodings
+    newEncodeList = []                  # set variable stuff
     currFitness = -1
     currEncoding = ''
     newFitness = -1
     newEncoding = ''
-    currEncoding = e.getEncoding()
+
+    currEncoding = e.getEncoding()      # create local variable for encoding list
     e.archiveLog()
     # java -jar match-wrapper-1.3.2.jar "$(cat wrapper-commands.json)"
+
+    # For each encoding in the encoding list, create a new process that starts a new main.py
+    # this for loop is what starts all my bots
     for x in currEncoding:
         print(e)
         currEncoding = x[0]
         currFitness = x[1]
         # create a new bot for each encoding
         spawn('Java', '-jar', 'match-wrapper-1.3.2.jar', "$(cat wrapper-commands.json)")
-        # returns a fitness score f eventually
-        newEncodeList.append((newFitness, newEncoding))
+
+    # TODO: This maybe shouldn't happen here but we need to write the new encodings down
+    newEncodeList.append((newFitness, newEncoding))
+
     e.setEncoding(newEncodeList)
     currList = e.getEncoding()
+
     # go through the list of encodings and crossbreed/mutate them
+    # the crossbreed method will crossbreed them first and then mutate them
     for x in range(0, len(currList.getEncoding()-1)):
         # separates the two encodings
-        e1 = currList.getEncoding()[x][0]
-        e2 = currList.getEncoding()[x+1][0]
+        e1 = currList.getEncoding()[x][1]
+        e2 = currList.getEncoding()[x+1][1]
         # places the returned crossbred encodings in a temp list
         tmpList = e.crossbreed(e1, e2)
         # replaces the old encodings with the new encodings
         currList[x][0] = tmpList[1]
         currList[x+1][0] = tmpList[2]
         e.setEncoding(currList)
+    e.resetFile()
