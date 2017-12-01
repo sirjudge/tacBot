@@ -29,14 +29,20 @@ class Decoding:
     def setGenerationNumber(self, genNum):
         self.generationNumber = genNum
 
-    def setEncoding(self, encode):
-        self.encodingList = encode
+    def setGeneList(self, encode):
+        self.geneList = encode
 
-    def getEncoding(self):
-        return self.encodingList
+    def getGeneList(self):
+        return self.geneList
 
     def getGenerationNum(self):
         return self.generationNumber
+
+    def getDNANum(self):
+        return self.generationNumber
+
+    def setDNANum(self, num):
+        self.dnaNum = num
 
     # Method simply creates 500 random strategies
     # Will create 10 encodings
@@ -65,61 +71,30 @@ class Decoding:
                 file.write(',' + encString + '\n')
 
 
-    @staticmethod
-    def file_len(fname):
-        i = 0
-        with open(fname) as f:
-            for i, l in enumerate(f):
-                pass
-        return i + 1
-
-    # TODO: go through and change all logic involving get decoding list
-    def getDecodingList(self):
-        return self.geneList
-
-    # TODO: delFirstLIne is should longer used as a function
-    def delFirstLine(self):
-        tmpFile = open('encoding.txt', 'r+')
-        with self.tmpFile as fin:
-            data = fin.read().splitlines(True)
-        with self.tmpFile as fout:
-            fout.writelines(data[1:])
-
-    # TODO: getFirstLIne should longer used as a function in conjunction iwth delFirstLine
-    def getFirstLine(self):
-        tmpFile = open('encoding.txt', 'r+')
-        with self.tmpFile as f:
-            first_line = f.readline()
-            efl = first_line.split(',')
-        return efl[0]
-
-    # TODO: rewrite this, it is using old logic and also still uses tmpFile, which should not really exist anymore
-    def resetFile(self):
-        self.tmpFile.truncate()
-        self.tmpFile.write(str(self.generationNumber) + '\n')
-        self.tmpFile.write
-        for q in self.getDecodingList():
-            self.tmpFile.write(q[0] + ',' + q[1] + '\n')
-
-
 class Encoding:
+    # Master list of all sets of encodings
     encodingList = []
+    # Current Generation Number
     generationNumber = -1
+    # GeneNum
     geneNum = -1
-    log = open('encoding.txt', 'r+')
 
     # Line in encoding log will be
     # board encoding, strategy/policy, fitness score
     def __init__(self):
-        for i, line in enumerate(self.log):
-            # First line of a file is generation number
-            if i == 0:
-                self.generationNumber = line
-            elif i == 1:
-                self.geneNum = line
-            # Otherwise it will be a tuple of (encoding,fitness level) so we split the line up by ','
-            else:
-                self.encodingList.append(line.split(','))
+        for notOriginalName in range(0, 10):
+            fname = 'encoding' + str(notOriginalName) + '.txt'
+            file = open(fname, 'r+')
+            i = 0
+            decodeList = []
+            for line in file:
+                if i == 0:
+                    self.generationNumber = line
+                elif i == 1:
+                    self.dnaNum = line
+                else:
+                    decodeList.append(line.split(','))
+            self.encodingList.append(decodeList)
 
     # Getters and Setters
     def setGenerationNumber(self, genNum):
@@ -134,64 +109,135 @@ class Encoding:
     def getGenerationNum(self):
         return self.generationNumber
 
-    def resetFile(self):
-        self.log.truncate()
-        self.log.write(str(self.getGenerationNum()))
-        for q in self.getEncoding():
-            self.log.write(str(q) + '\n')
-
-    # returns the length of a file
-    @staticmethod
-    def file_len(fname):
-        i = 0
-        with open(fname) as f:
-            for i, l in enumerate(f):
-                pass
-        return i + 1
-
+    # TODO: These need to change
     def writeToLog(self):
-        log = open('encoding.txt', 'r+')
-        log.truncate()
-        log.write('' + str(self.generationNumber) + '\n')
-        for enc in self.encodingList:
-            log.write(enc[0][0] + ',' + enc[0][1] + ',' + enc[0][2] + '\n')
+        for notOriginalName in range(0, 10):
+            fname = 'encoding' + str(notOriginalName) + '.txt'
+            file = open(fname, 'r+')
+            i = 0
+            decodeList = []
+            for line in file:
+                if i == 0:
+                    self.generationNumber = line
+                elif i == 1:
+                    self.dnaNum = line
+                else:
+                    decodeList.append(line)
+            self.encodingList.append(decodeList)
 
-    def archiveLog(self):
-        genNum = self.getGenerationNum
-        fName = 'archivedLogs/log_gen' + str(genNum)
-        file = open(fName, 'r+')
-        file.write(genNum)
-        for enc in self.encodingList:
-            file.write(enc[0][0] + ',' + enc[0][1] + ',' + enc[0][2] + '\n')
+    # Moves an encoding file to archived folder
+    @staticmethod
+    def moveToArchive():
+        for encodingNum in range(0, 10):
+            fname = 'encoding' + str(encodingNum) + '.txt'
+            # My Linux machine
+            os.rename('/home/nico/Documents/CompSci/440/tacBot/' + fname
+                      , "/home/nico/Documents/CompSci/440/tacBot/archivedLogs/gen" + str(encodingNum) + '/' + fname)
+            # My Windows machine
+            # os.rename()
 
-    def crossbreed(self, encoding1, encoding2):
-        # TODO: fix the logic. Have to open each file, put each file into a list, swap half the list
-        # TODO: Maybe consider just writing a whole new method and then deleting this one
-        # First part of both encodings
-        e1f = ''
-        e2f = ''
-        # Second part of both encodings
-        e1s = ''
-        e2s = ''
+    @staticmethod
+    def howManyLines(fname):
+        file = open(fname)
+        i = 0
+        for line in file:
+            i += 1
+        return i
+
+    def crossbreed(self, fname1, fname2):
+        file1 = open(fname1)
+        file2 = open(fname2)
+        # List of two encodings
+        encList1 = []
+        encList2 = []
+        # return list of crossbred lists
+        newEncList1 = []
+        newEncList2 = []
+        lineCount = 0
+        # lineCount = 0: gen num
+        # lineCount = 1: gene num
+        # lineCount >= 2: encoding lists
+        for line in file1:
+            if lineCount >= 2:
+                encList1.append(line)
+            lineCount += 1
+        lineCount = 0
+        for line in file2:
+            if lineCount >= 2:
+                encList2.append(line)
+            lineCount += 1
+        # If the length of the two lists is not equal then quit
+        if not len(encList1) == len(encList2):
+            print('encoding lists are different sizes')
+            pass
+        # choose a random point to switch encodings
+        crossPoint = random.randint(0, len(encList1))
+        # create a random number between 0-100
         crossChance = random.randint(0, 100)
-        crossPlace = random.randint(0, len(encoding1) - 1)
-        # Has a 10% chance to crossbreed
+        # 10% chance to crossbreed
         if crossChance <= 10:
-            # Separate first encoding
-            e1f = encoding1[0:crossPlace]
-            e1s = encoding1[0:crossPlace + 1]
-            # Separate second encoding
-            e2f = encoding2[0:crossPlace]
-            e2s = encoding2[0:crossPlace + 1]
-        # combine first half of encoding 1 with second half of encoding 2
-        ne1 = e1f + e2s
-        # combine first half of encoding 2 with second half of encoding 1
-        ne2 = e2f + e1s
-        # Run both encodings through mutate function
-        ne1 = self.mutate(ne1)
-        ne2 = self.mutate(ne2)
-        # return both encodings
-        return ne1, ne2
+            for i in range(len(encList1)):
+                # go up to the crosspoint in both lists, append them to their normal spots,
+                # but switch the second parts of each list
+                # ex.
+                # new_encoding_1 = first_half_enc1 + second_half_enc2
+                # new_encoding_2 = first_half_enc2 + second_half_enc1
+
+                if x < crossPoint:
+                    newEncList1.append(encList1[i])
+                    newEncList2.append(encList2[i])
+                else:
+                    newEncList1.append(encList2[i])
+                    newEncList2.append(encList1[i])
+        # Why make two for loops when you can just write one?
+        for lineNum in range(len(newEncList1)):
+            line1 = newEncList1[lineNum]
+            line2 = newEncList2[lineNum]
+            # before adding it to the new encoding list we have to mutate each one
+            newEncList1[lineNum] = self.mutateLine(line1)
+            newEncList2[lineNum] = self.mutateLine(line2)
+        return newEncList1, newEncList2
+
+    @staticmethod
+    def mutateLine(encLine):
+        # 0123456789012345678
+        # 123456789,123456789
+        # second half of encoding is 10-18
+        # If I change the encoding change the following lines to reflect a longer encoding
+
+        stratEnc = encLine[10:18]
+        boardEnc = encLine[0:8]
+
+        mutateBit = randint(0, len(stratEnc))
+        mutateBit2 = randint(0, len(stratEnc))
+        mutateChance = randint(0, 100)
+
+        maxBit = max(mutateBit, mutateBit2)
+        minBit = min(mutateBit, mutateBit2)
+        outEnc = ''
+        mutateChar1 = stratEnc[mutateBit]
+        mutateChar2 = stratEnc[mutateBit2]
+        if mutateChance < 5:
+            # Make sure we didn't choose the same two numbers
+            # and if we did choose the same 2 numbers keep reassigning them until we get it
+            # we only need to change bit2
+            while mutateBit == mutateBit2:
+                    if mutateBit == len(stratEnc):
+                        mutateBit2 -= 1
+                    elif mutateBit == 0:
+                        mutateBit2 += 1
+                    else:
+                        mutateBit2 = randint(0, len(stratEnc))
+
+            # if position of the first bit to switch is the last in the queue
+            if mutateBit == len(stratEnc):
+                outEnc = boardEnc + stratEnc[0:mutateBit2-1] + mutateChar1 + stratEnc[mutateBit2+1:-1] + mutateChar2
+            # if position of the second bit to switch is the last in the queue
+            elif mutateBit2 == len(stratEnc):
+                outEnc = boardEnc + stratEnc[0:mutateBit-1] + mutateChar2 + stratEnc[mutateBit+1:-1] + mutateChar1
+            else:
+                outEnc = boardEnc + stratEnc[0:minBit-1] + stratEnc[minBit + 1:maxBit]
+        return outEnc
 
     @staticmethod
     def mutate(encoding):
@@ -241,7 +287,6 @@ if __name__ == '__main__':
     newEncoding = ''
 
     currEncoding = e.getEncoding()      # create local variable for encoding list
-    e.archiveLog()
     # java -jar match-wrapper-1.3.2.jar "$(cat wrapper-commands.json)"
 
     # For each encoding in the encoding list, create a new process that starts a new main.py
@@ -271,4 +316,3 @@ if __name__ == '__main__':
         currList[x][0] = tmpList[1]
         currList[x+1][0] = tmpList[2]
         e.setEncoding(currList)
-    e.resetFile()

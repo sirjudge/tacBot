@@ -24,9 +24,12 @@ class BotStarter:
         d = robotStarter.Decoding()
         # Uncomment below if you want to re-create a random set of encodings AKA Gen 1
         # d.createRandomFile()
+        # TODO: Create a file, its sole purpose is to hold a single number. That number will be the current gene I am on
+        # TODO: every time I finish a game I should erase the file and write the next number until I get to 10
+        # TODO: if count == 10: count = 0
+        # TODO: that way I can easily keep track of stuff
 
 
-    # TODO come back to this later
     def load_from_json(self):
         with open('resultfile.txt') as f:
             data = json.load(f)
@@ -57,42 +60,6 @@ class BotStarter:
     # phrase, 'what would jesus do'. This is where the encoding will be evaluated and return a move based on
     # what the current encodings are
 
-    # Bot Encoding
-    #  Macro       box 1       box 2       box 3       box 4       box 5       box 6       box 7       box 8
-    # <012345678> <012345678> <012345678> <012345678> <012345678> <012345678> <012345678> <012345678> <012345678>
-
-    # Board encoding
-    #  Macro
-    # <WWLWWTWLW>
-
-    """def wwbd(self, field):
-        prefMacroList = self.currEncoding[0:8]
-        prefMacroList = -1
-        microboardStrats = []
-        currBox = ''
-        i = 0
-
-        for x in range(9, len(self.currEncoding)):
-            currBox = currBox + self.currEncoding[x]
-            i += 1
-            if i == 9:
-                i = 0
-                microboardStrats.append(currBox)
-                currBox = ''
-        # Loop through the macro list and find the most preferred available box
-        for x in range(prefMacroList):
-            if not field.isFull():
-                prefMacro = x
-                break
-        # After finding the prefered macro box find the most preferred mini box
-        for y in prefMacroList[prefMacro]:
-            if y == 'W':
-                # TODO return this move because it is the most wanted
-                # ask brody about how to do the math here because what?
-                return Move(-1, -1)
-    
-    ABOVE THIS IS OLD CODE. IT DOES NOT WORK FUTURE NICO DON'T USE ANY OF THIS PLEASE. THANK YOU. 
-    """
     @staticmethod
     def grepSearch(searchString, fileName):
         hosts_process = subprocess.Popen(['grep', searchString, fileName], stdout=subprocess.PIPE)
@@ -175,14 +142,18 @@ class BotStarter:
 
     def doMove(self, state):
         # TODO: this logic is wrong. fix it
-
         moves = state.getField().getAvailableMoves()
-        # TODO: Move based on the encoding
+        pass
+        """
+        =================
+        This is old code
+        =================
         if len(moves) > 0:
             return moves[random.randrange(len(moves))]
         else:
             return None
+        """
+
 
 if __name__ == '__main__':
     go()
-    # This will create 100 mains

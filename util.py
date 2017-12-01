@@ -127,8 +127,7 @@ class Field:
 
     def setOpponentId(self, i):
         self.__opponentId = i
-
-
+        
     @staticmethod
     def eval(sList):
         # Counter variable for X and O
@@ -149,7 +148,7 @@ class Field:
                     p1Count += 1
                 elif move == 'O':
                     p2Count += 1
-            evalList.append(typeEval, p1Count, p2Count)
+            evalList.append([typeEval, p1Count, p2Count])
         # Evaluates what case the board is in
         # not important
         if p1Count == 0 and p2Count == 0:
