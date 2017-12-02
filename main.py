@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 from util import *
 import robotStarter
-import re
 import random
 import json
 import subprocess
 
 
 def go():
+    file = open('geneList.txt')
+
     bot = BotStarter()
     parser = BotParser(bot)
     # Comment/uncomment the line below to start/stop the parser from actually running
@@ -29,7 +30,6 @@ class BotStarter:
         # TODO: if count == 10: count = 0
         # TODO: that way I can easily keep track of stuff
 
-
     def load_from_json(self):
         with open('resultfile.txt') as f:
             data = json.load(f)
@@ -40,26 +40,11 @@ class BotStarter:
     def jsonDataToWinner(data):
         return json.loads(data['details'])['winner']
 
-    # using the regex 'winner\"\d' search the file to find the winner's ID number
-    @staticmethod
-    def whoWon():
-        resultFile = open('resultfile.json')
-        winnerID = 42
-        # Regex stuff
-        # s = mmap.mmap(resultFile.fileno(), 0, access=mmap.ACCESS_READ)
-        # regex = re.compile('.*winner\":.*')
-        # reads the file, closes the file, using regex searches for who won the game
-        resultRead = resultFile.read()
-        # tries to find a pattern to match the string <"winner\":1>
-        matches = re.findall('"winner\":\d', resultRead)
-        print(matches)
-        # winnerID = matches[]
-        return winnerID
-
     # this method has been named wwbd() or better known as what would brody do, an adaptation of the popular
     # phrase, 'what would jesus do'. This is where the encoding will be evaluated and return a move based on
     # what the current encodings are
 
+    # Use grep command to search through encoding file for the first line that the string is in
     @staticmethod
     def grepSearch(searchString, fileName):
         hosts_process = subprocess.Popen(['grep', searchString, fileName], stdout=subprocess.PIPE)
@@ -69,6 +54,8 @@ class BotStarter:
         eandsList = stratLookup.split(',')
         return eandsList
 
+    # What would brody do 2: the superior version of wwbd().
+    # It takes in a state and a file name and will return a move based on the strat for the given board encoding
     def wwbd2(self, fname, state):
         currField = state.getField()
         horzEval = currField.horizontal()
@@ -86,23 +73,35 @@ class BotStarter:
         # given strategy for that board
         print(eandsList[1])
 
-        # For each box in the preferedBoxes
+        # For each box in the preferredBoxes
+        #   depending on the box number -> choose x and y values for everything in that microboard
+        #   loop through all the spaces in that mini board
+        #   if the space is free and the board is active:
+        #       return that move
+        #   else if board is not active:
+        #       go check the next box
         for box in eandsList[1]:
             # ROW 1
             # =============================
             if box == 0:
                 for x in range(0, 2):
                     for y in range(0, 2):
+                        if not state.getField().isInActiveMicroBoard(x, y):
+                            break
                         if state.getField().isInActiveMicroBoard(x, y) and state.getField().isisActiveSpace(x, y):
                             return Move(x, y)
             elif box == 1:
                 for x in range(3, 5):
                     for y in range(0, 2):
+                        if not state.getField().isInActiveMicroBoard(x, y):
+                            break
                         if state.getField().isInActiveMicroBoard(x, y) and state.getField().isisActiveSpace(x, y):
                             return Move(x, y)
             elif box == 2:
                 for x in range(6, 8):
                     for y in range(0, 2):
+                        if not state.getField().isInActiveMicroBoard(x, y):
+                            break
                         if state.getField().isInActiveMicroBoard(x, y) and state.getField().isisActiveSpace(x, y):
                             return Move(x, y)
             # ROW 2
@@ -141,18 +140,10 @@ class BotStarter:
                             return Move(x, y)
 
     def doMove(self, state):
-        # TODO: this logic is wrong. fix it
-        moves = state.getField().getAvailableMoves()
-        pass
-        """
-        =================
-        This is old code
-        =================
-        if len(moves) > 0:
-            return moves[random.randrange(len(moves))]
-        else:
-            return None
-        """
+        bestMove = self.wwbd2(state)
+        file = open('out.txt')
+        file.write('MoveX:' + str(bestMove.getX()) + ' MoveY:' + str(bestMove.getY()))
+        return bestMove
 
 
 if __name__ == '__main__':
