@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 from util import *
-import robotStarter
 import random
 import json
 import subprocess
 
 
 def go():
-    file = open('geneList.txt')
-
+    # create a botStarter object
     bot = BotStarter()
+    # create a parser for the bot
     parser = BotParser(bot)
     # Comment/uncomment the line below to start/stop the parser from actually running
     parser.run()
@@ -18,18 +17,41 @@ def go():
 
 
 class BotStarter:
-    currEncoding = ''
+    # Holds the current gene number we are working with
+    currGene = ''
+    currFilename = ''
 
     def __init__(self):
         random.seed()  # helps create a more random environment
-        d = robotStarter.Decoding()
         # Uncomment below if you want to re-create a random set of encodings AKA Gen 1
         # d.createRandomFile()
-        # TODO: Create a file, its sole purpose is to hold a single number. That number will be the current gene I am on
-        # TODO: every time I finish a game I should erase the file and write the next number until I get to 10
-        # TODO: if count == 10: count = 0
-        # TODO: that way I can easily keep track of stuff
 
+        # set the current gene num we are working with
+        self.currGene = self.readFirstLine('geneList.txt')
+        # set the current file name of the encoding
+        self.currFilename = 'encoding' + str(self.currGene) + '.txt'
+        #  delete the first line of the file so we know that we have done that particular run
+        self.delFirstLine(self.currFilename)
+
+    @staticmethod
+    def delFirstLine(fName):
+        # reads file and loads it into data variable
+        with open(fName, 'r') as fin:
+            data = fin.read().splitlines(True)
+        # open the file again in write mode, and rewrite the file line by line ignoring the first line in the file
+        with open(fName, 'w') as fout:
+            fout.writelines(data[1:])
+
+    @staticmethod
+    def readFirstLine(fName):
+        # Open the file
+        file = open(fName, 'r+')
+        # read the first line
+        firstLine = file.readline()
+        # return the first line
+        return firstLine
+
+    # Thank you Julian for these two methods
     def load_from_json(self):
         with open('resultfile.txt') as f:
             data = json.load(f)
@@ -39,10 +61,6 @@ class BotStarter:
     @staticmethod
     def jsonDataToWinner(data):
         return json.loads(data['details'])['winner']
-
-    # this method has been named wwbd() or better known as what would brody do, an adaptation of the popular
-    # phrase, 'what would jesus do'. This is where the encoding will be evaluated and return a move based on
-    # what the current encodings are
 
     # Use grep command to search through encoding file for the first line that the string is in
     @staticmethod
@@ -55,16 +73,17 @@ class BotStarter:
         return eandsList
 
     # What would brody do 2: the superior version of wwbd().
-    # It takes in a state and a file name and will return a move based on the strat for the given board encoding
-    def wwbd2(self, fname, state):
+    # It takes in a state will return a move based on the strat for the given board encoding
+    def wwbd2(self, state):
         currField = state.getField()
+        """
         horzEval = currField.horizontal()
         vertEval = currField.vertical()
         diagEval = currField.diagonal()
         stateList = [horzEval, vertEval, diagEval]
-        print(stateList)
+        """
         evalReturn = currField.evalMacroboard()
-        encodingNeeded = self.grepSearch(evalReturn, fname)
+        encodingNeeded = self.grepSearch(evalReturn, self.currFilename)
         eandsList = encodingNeeded
 
         # Below searches for the needed strategy for the given encoding at the time of the move

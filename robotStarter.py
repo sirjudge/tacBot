@@ -3,7 +3,6 @@ import os
 import sys
 from random import randint
 
-
 # decoding list is a list of tuples (encoding,fitness)
 class Decoding:
     geneList = []
@@ -183,7 +182,7 @@ class Encoding:
                 # new_encoding_1 = first_half_enc1 + second_half_enc2
                 # new_encoding_2 = first_half_enc2 + second_half_enc1
 
-                if x < crossPoint:
+                if i < crossPoint:
                     newEncList1.append(encList1[i])
                     newEncList2.append(encList2[i])
                 else:
@@ -239,22 +238,6 @@ class Encoding:
                 outEnc = boardEnc + stratEnc[0:minBit-1] + stratEnc[minBit + 1:maxBit]
         return outEnc
 
-    @staticmethod
-    def mutate(encoding):
-        # TODO: Fix the logic with this one. It's just full wrong.
-        # Choose a random number between 1 and 100 to be our chance to mutate
-        mutateChance = random.randint(0, 100)
-        out = ''
-        # for each number in the encoding
-        for eChar in encoding:
-            # 1% chance to mutate to a random strat
-            if mutateChance == 42:
-                out = out + (random.randint(0, 5))
-            # 99% chance to keep the same strat
-            else:
-                out = out + eChar
-        return out
-
 
 def spawn(prog, *args):                       # pass progname, cmdline args
     stdinFd = sys.stdin.fileno()              # get descriptors for streams
@@ -280,39 +263,18 @@ def spawn(prog, *args):                       # pass progname, cmdline args
 if __name__ == '__main__':
     # TODO: Double check this stuff. I think some of it may also be wrong
     e = Encoding()                      # Create the list of encodings
-    newEncodeList = []                  # set variable stuff
-    currFitness = -1
-    currEncoding = ''
-    newFitness = -1
-    newEncoding = ''
 
     currEncoding = e.getEncoding()      # create local variable for encoding list
     # java -jar match-wrapper-1.3.2.jar "$(cat wrapper-commands.json)"
 
-    # For each encoding in the encoding list, create a new process that starts a new main.py
-    # this for loop is what starts all my bots
-    for x in currEncoding:
-        print(e)
-        currEncoding = x[0]
-        currFitness = x[1]
-        # create a new bot for each encoding
+    for x in range(0, 10):
+        print('running encoding ' + str(x))
+        e.moveToArchive()
         spawn('Java', '-jar', 'match-wrapper-1.3.2.jar', "$(cat wrapper-commands.json)")
 
-    # TODO: This maybe shouldn't happen here but we need to write the new encodings down
-    newEncodeList.append((newFitness, newEncoding))
-
-    e.setEncoding(newEncodeList)
-    currList = e.getEncoding()
-
-    # go through the list of encodings and crossbreed/mutate them
-    # the crossbreed method will crossbreed them first and then mutate them
-    for x in range(0, len(currList.getEncoding()-1)):
-        # separates the two encodings
-        e1 = currList.getEncoding()[x][1]
-        e2 = currList.getEncoding()[x+1][1]
-        # places the returned crossbred encodings in a temp list
-        tmpList = e.crossbreed(e1, e2)
-        # replaces the old encodings with the new encodings
-        currList[x][0] = tmpList[1]
-        currList[x+1][0] = tmpList[2]
-        e.setEncoding(currList)
+    # Do crossbreeding and mutate and clean up here
+    for encNum in range(0, 9):
+        fname1 = 'encoding' + encNum
+        fname2 = 'encoding' + encNum + 1
+        e.crossbreed(fname1, fname2)
+        e.moveToArchive()
