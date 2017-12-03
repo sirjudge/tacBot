@@ -1,7 +1,7 @@
 import random
 import os
 from random import randint
-
+import sys
 
 def crossbreed(fname1, fname2):
     file1 = open(fname1)
@@ -41,7 +41,7 @@ def crossbreed(fname1, fname2):
             # ex.
             # new_encoding_1 = first_half_enc1 + second_half_enc2
             # new_encoding_2 = first_half_enc2 + second_half_enc1
-
+            print('crosspoint = ' + str(i))
             if i < crossPoint:
                 newEncList1.append(encList1[i])
                 newEncList2.append(encList2[i])
@@ -71,6 +71,9 @@ def mutateLine(encLine):
     mutateBit2 = randint(0, len(stratEnc) - 1)
     mutateChance = randint(0, 100)
 
+    oldEnc1 = stratEnc
+    newEnc1 = ''
+
     maxBit = max(mutateBit, mutateBit2)
     minBit = min(mutateBit, mutateBit2)
     outEnc = ''
@@ -96,19 +99,46 @@ def mutateLine(encLine):
             outEnc = boardEnc + stratEnc[0:mutateBit - 1] + mutateChar2 + stratEnc[mutateBit + 1:-1] + mutateChar1
         else:
             outEnc = boardEnc + stratEnc[0:minBit - 1] + stratEnc[minBit + 1:maxBit]
+    newEnc1 = outEnc
+    print('newEnc:' + newEnc1)
+    print('oldEnc:' + oldEnc1)
     return outEnc
 
 
-def moveToArchive():
+def moveToArchive(genNum):
+    generationNum = str(genNum)
+    os.system('mkdir /home/nico/Documents/CompSci/440/tacBot/archivedLogs/gen' + generationNum)
     for encodingNum in range(0, 10):
         fname = 'encoding' + str(encodingNum) + '.txt'
-        # My Linux machine
-        os.rename('/home/nico/Documents/CompSci/440/tacBot/' + fname
-                  , "/home/nico/Documents/CompSci/440/tacBot/archivedLogs/gen" + str(encodingNum) + '/' + fname)
-        # My Windows machine
-        # os.rename()
+        os.system('cp /home/nico/Documents/CompSci/440/tacBot/' + fname + ' /home/nico/Documents/CompSci/440/tacBot/archivedLogs/gen0'+ '/' + fname)
+# ==================================
+# OLD TESTING STUFF ABOVE THIS LINE
+# ==================================
+
+
+# outside Encoding class
+def spawn(prog, *args):                       # pass progname, cmdline args
+    stdinFd = sys.stdin.fileno()              # get descriptors for streams
+    stdoutFd = sys.stdout.fileno()            # normally stdin=0, stdout=1
+    parentStdin, childStdout = os.pipe()      # make two IPC pipe channels
+    childStdin,  parentStdout = os.pipe()     # pipe returns (inputfd, outoutfd)
+    pid = os.fork()                           # make a copy of this process
+    if pid:
+        os.close(childStdout)                 # in parent process after fork:
+        os.close(childStdin)                  # close child ends in parent
+        os.dup2(parentStdin,  stdinFd)        # my sys.stdin copy  = pipe1[0]
+        os.dup2(parentStdout, stdoutFd)       # my sys.stdout copy = pipe2[1]
+    else:
+        os.close(parentStdin)                 # in child process after fork:
+        os.close(parentStdout)                # close parent ends in child
+        os.dup2(childStdin,  stdinFd)         # my sys.stdin copy  = pipe2[0]
+        os.dup2(childStdout, stdoutFd)        # my sys.stdout copy = pipe1[1]
+        args = (prog,) + args
+        os.execvp(prog, args)                 # new program in this process
+        assert False, 'execvp failed!'        # os.exec call never returns here
 
 
 if __name__ == '__main__':
     crossbreed('encoding0.txt', 'encoding1.txt')
-    moveToArchive()
+    moveToArchive(0)
+    spawn('Java', '-jar', 'match-wrapper-1.3.2.jar', "$(cat wrapper-commands.json)")

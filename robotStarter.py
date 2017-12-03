@@ -125,15 +125,14 @@ class Encoding:
             self.encodingList.append(decodeList)
 
     # Moves an encoding file to archived folder
-    @staticmethod
-    def moveToArchive():
+    def moveToArchive(self):
+        generationNum = str(self.generationNumber)
+        os.system('mkdir /home/nico/Documents/CompSci/440/tacBot/archivedLogs/gen' + generationNum)
         for encodingNum in range(0, 10):
             fname = 'encoding' + str(encodingNum) + '.txt'
-            # My Linux machine
-            os.rename('/home/nico/Documents/CompSci/440/tacBot/' + fname
-                      , "/home/nico/Documents/CompSci/440/tacBot/archivedLogs/gen" + str(encodingNum) + '/' + fname)
-            # My Windows machine
-            # os.rename()
+            os.system(
+                'cp /home/nico/Documents/CompSci/440/tacBot/' + fname
+                + ' /home/nico/Documents/CompSci/440/tacBot/archivedLogs/gen0/' + fname)
 
     @staticmethod
     def howManyLines(fname):
@@ -143,9 +142,9 @@ class Encoding:
             i += 1
         return i
 
-    def crossbreed(self, fname1, fname2):
-        file1 = open(fname1)
-        file2 = open(fname2)
+    def crossbreed(self, f1, f2):
+        file1 = open(f1)
+        file2 = open(f2)
         # List of two encodings
         encList1 = []
         encList2 = []
@@ -181,7 +180,7 @@ class Encoding:
                 # ex.
                 # new_encoding_1 = first_half_enc1 + second_half_enc2
                 # new_encoding_2 = first_half_enc2 + second_half_enc1
-
+                print('crosspoint = ' + str(i))
                 if i < crossPoint:
                     newEncList1.append(encList1[i])
                     newEncList2.append(encList2[i])
@@ -207,8 +206,8 @@ class Encoding:
         stratEnc = encLine[10:18]
         boardEnc = encLine[0:8]
 
-        mutateBit = randint(0, len(stratEnc))
-        mutateBit2 = randint(0, len(stratEnc))
+        mutateBit = randint(0, len(stratEnc) - 1)
+        mutateBit2 = randint(0, len(stratEnc) - 1)
         mutateChance = randint(0, 100)
 
         maxBit = max(mutateBit, mutateBit2)
@@ -221,24 +220,25 @@ class Encoding:
             # and if we did choose the same 2 numbers keep reassigning them until we get it
             # we only need to change bit2
             while mutateBit == mutateBit2:
-                    if mutateBit == len(stratEnc):
-                        mutateBit2 -= 1
-                    elif mutateBit == 0:
-                        mutateBit2 += 1
-                    else:
-                        mutateBit2 = randint(0, len(stratEnc))
+                if mutateBit == len(stratEnc):
+                    mutateBit2 -= 1
+                elif mutateBit == 0:
+                    mutateBit2 += 1
+                else:
+                    mutateBit2 = randint(0, len(stratEnc))
 
             # if position of the first bit to switch is the last in the queue
             if mutateBit == len(stratEnc):
-                outEnc = boardEnc + stratEnc[0:mutateBit2-1] + mutateChar1 + stratEnc[mutateBit2+1:-1] + mutateChar2
+                outEnc = boardEnc + stratEnc[0:mutateBit2 - 1] + mutateChar1 + stratEnc[mutateBit2 + 1:-1] + mutateChar2
             # if position of the second bit to switch is the last in the queue
             elif mutateBit2 == len(stratEnc):
-                outEnc = boardEnc + stratEnc[0:mutateBit-1] + mutateChar2 + stratEnc[mutateBit+1:-1] + mutateChar1
+                outEnc = boardEnc + stratEnc[0:mutateBit - 1] + mutateChar2 + stratEnc[mutateBit + 1:-1] + mutateChar1
             else:
-                outEnc = boardEnc + stratEnc[0:minBit-1] + stratEnc[minBit + 1:maxBit]
+                outEnc = boardEnc + stratEnc[0:minBit - 1] + stratEnc[minBit + 1:maxBit]
         return outEnc
 
 
+# outside Encoding class
 def spawn(prog, *args):                       # pass progname, cmdline args
     stdinFd = sys.stdin.fileno()              # get descriptors for streams
     stdoutFd = sys.stdout.fileno()            # normally stdin=0, stdout=1
@@ -261,20 +261,18 @@ def spawn(prog, *args):                       # pass progname, cmdline args
 
 
 if __name__ == '__main__':
-    # TODO: Double check this stuff. I think some of it may also be wrong
     e = Encoding()                      # Create the list of encodings
-
     currEncoding = e.getEncoding()      # create local variable for encoding list
-    # java -jar match-wrapper-1.3.2.jar "$(cat wrapper-commands.json)"
 
+    # Spawns a new main each time it's run. will run 10 mains at a time, 1 for each encoding
+    # java -jar match-wrapper-1.3.2.jar "$(cat wrapper-commands.json)"
     for x in range(0, 10):
         print('running encoding ' + str(x))
-        e.moveToArchive()
         spawn('Java', '-jar', 'match-wrapper-1.3.2.jar', "$(cat wrapper-commands.json)")
 
     # Do crossbreeding and mutate and clean up here
-    for encNum in range(0, 9):
-        fname1 = 'encoding' + encNum
-        fname2 = 'encoding' + encNum + 1
+    for encNum in range(0, 8):
+        fname1 = 'encoding' + str(encNum)
+        fname2 = 'encoding' + str(encNum + 1)
         e.crossbreed(fname1, fname2)
-        e.moveToArchive()
+    e.moveToArchive()

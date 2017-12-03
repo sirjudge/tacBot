@@ -13,7 +13,9 @@ def go():
     # Comment/uncomment the line below to start/stop the parser from actually running
     parser.run()
     file = open('out.txt', 'r+')
-    file.write('Winner = ' + bot.load_from_json())
+    file.write('currGene:' + str(bot.getGene) + '\n')
+    file.write('Winner = ' + bot.load_from_json() + '\n')
+
 
 
 class BotStarter:
@@ -25,7 +27,6 @@ class BotStarter:
         random.seed()  # helps create a more random environment
         # Uncomment below if you want to re-create a random set of encodings AKA Gen 1
         # d.createRandomFile()
-
         # set the current gene num we are working with
         self.currGene = self.readFirstLine('geneList.txt')
         # set the current file name of the encoding
@@ -41,6 +42,9 @@ class BotStarter:
         # open the file again in write mode, and rewrite the file line by line ignoring the first line in the file
         with open(fName, 'w') as fout:
             fout.writelines(data[1:])
+
+    def getGene(self):
+        return self.currGene
 
     @staticmethod
     def readFirstLine(fName):
