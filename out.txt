@@ -1,1 +1,2 @@
-Winner = 42
+geneList = <0>
+finished initializing botStarter

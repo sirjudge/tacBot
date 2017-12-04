@@ -2,17 +2,18 @@ import sys
 
 
 class Field:
-    __EMPTY_FIELD = "."  # value for an empty field on microboard
-    __AVAILABLE_FIELD = "-1"  # you can move on the macroboard
-    __NUM_COLS = 9  # number of columns
-    __NUM_ROWS = 9  # number of rows
-    __mBoard = []  # micro board
-    __mMacroboard = []  # macro board
-    __myId = 0
-    __opponentId = 0
 
     # initializes the entire board to be blank
     def __init__(self):
+        self.__EMPTY_FIELD = "."  # value for an empty field on microboard
+        self.__AVAILABLE_FIELD = "-1"  # you can move on the macroboard
+        self.__NUM_COLS = 9  # number of columns
+        self.__NUM_ROWS = 9  # number of rows
+        self.__mBoard = []  # micro board
+        self.__mMacroboard = []  # macro board
+        self.__myId = 0
+        self.__opponentId = 0
+
         null_row = []  # create an empty row
         for col in range(self.__NUM_COLS):  # for every column add an empty_field variable
             null_row.append(self.__EMPTY_FIELD)
@@ -35,7 +36,7 @@ class Field:
                 elif val == self.getOpponentId():
                     outEval += '0'
                 else:
-                    outEval += '*'
+                    outEval += '_'
         return outEval
 
 
@@ -127,7 +128,8 @@ class Field:
 
     def setOpponentId(self, i):
         self.__opponentId = i
-        
+
+
     @staticmethod
     def eval(sList):
         # Counter variable for X and O
@@ -177,7 +179,7 @@ class Field:
         # Tie for both
         elif p1Count == 2 and p2Count == 2:
             return 9
-
+    
     # moves are done using playerID not X or O - usually an integer, 0 or 1
     # getPlayerID method takes an x and a y argument for where in the board you go
     # checks how close a win case is for horizontal, vertical, and horizontal
@@ -431,6 +433,8 @@ class BotParser:
                     # sys.stdout.write(move.toString())
                     self.output(move.toString())
                 else:
+                    # TODO: I AM RETURNING SOMETHING THAT ISN'T A MOVE SOMEWHERE
+                    # TODO: THIS IS WHY I THINK
                     # sys.stdout.write("pass")
                     self.output("pass")
         else:

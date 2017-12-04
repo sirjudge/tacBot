@@ -3,6 +3,7 @@ import os
 import sys
 from random import randint
 
+"""
 # decoding list is a list of tuples (encoding,fitness)
 class Decoding:
     geneList = []
@@ -42,33 +43,7 @@ class Decoding:
 
     def setDNANum(self, num):
         self.dnaNum = num
-
-    # Method simply creates 500 random strategies
-    # Will create 10 encodings
-    @staticmethod
-    def createRandomFile():
-        sList = ['0', '1', '*']
-        # Creates 10 files
-        for notOriginalName in range(0, 10):
-            fname = 'encoding' + str(notOriginalName) + '.txt'
-            file = open(fname, 'r+')
-            # Clear the file
-            file.truncate()
-            # Write the Generation Number
-            file.write('0')
-            # Write the encoding name
-            file.write(str(notOriginalName))
-            # Create 500 random strats
-            for x in range(0, 500):
-                for y in range(0, 9):
-                    i = randint(0, 2)
-                    file.write(sList[i])
-                randomList = random.sample(range(9), 9)
-                encString = ''
-                for z in randomList:
-                    encString = encString + str(z)
-                file.write(',' + encString + '\n')
-
+"""
 
 class Encoding:
     # Master list of all sets of encodings
@@ -94,6 +69,32 @@ class Encoding:
                 else:
                     decodeList.append(line.split(','))
             self.encodingList.append(decodeList)
+
+    # Method simply creates 500 random strategies
+    # Will create 10 encodings
+    @staticmethod
+    def createRandomFile():
+        sList = ['0', '1', '_']
+        # Creates 10 files
+        for notOriginalName in range(0, 10):
+            fname = 'encoding' + str(notOriginalName) + '.txt'
+            file = open(fname, 'r+')
+            # Clear the file
+            file.truncate()
+            # Write the Generation Number
+            file.write('0')
+            # Write the encoding name
+            file.write(str(notOriginalName))
+            # Create 500 random strats
+            for x in range(0, 500):
+                for y in range(0, 9):
+                    i = randint(0, 2)
+                    file.write(sList[i])
+                randomList = random.sample(range(9), 9)
+                encString = ''
+                for z in randomList:
+                    encString = encString + str(z)
+                file.write(',' + encString + '\n')
 
     # Getters and Setters
     def setGenerationNumber(self, genNum):
@@ -261,14 +262,17 @@ def spawn(prog, *args):                       # pass progname, cmdline args
 
 
 if __name__ == '__main__':
+
     e = Encoding()                      # Create the list of encodings
+    #e.createRandomFile()
+
     currEncoding = e.getEncoding()      # create local variable for encoding list
 
     # Spawns a new main each time it's run. will run 10 mains at a time, 1 for each encoding
     # java -jar match-wrapper-1.3.2.jar "$(cat wrapper-commands.json)"
     for x in range(0, 10):
         print('running encoding ' + str(x))
-        spawn('Java', '-jar', 'match-wrapper-1.3.2.jar', "$(cat wrapper-commands.json)")
+        spawn('java', '-jar', 'match-wrapper-1.3.2.jar', "$(cat wrapper-commands.json)")
 
     # Do crossbreeding and mutate and clean up here
     for encNum in range(0, 8):

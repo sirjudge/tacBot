@@ -2,6 +2,8 @@ import random
 import os
 from random import randint
 import sys
+import subprocess
+from util import Move
 
 def crossbreed(fname1, fname2):
     file1 = open(fname1)
@@ -55,6 +57,8 @@ def crossbreed(fname1, fname2):
         # before adding it to the new encoding list we have to mutate each one
         newEncList1[lineNum] = mutateLine(line1)
         newEncList2[lineNum] = mutateLine(line2)
+    print(newEncList1)
+    print(newEncList2)
     return newEncList1, newEncList2
 
 
@@ -115,6 +119,13 @@ def moveToArchive(genNum):
 # OLD TESTING STUFF ABOVE THIS LINE
 # ==================================
 
+def grepSearch(searchString, fileName):
+    hosts_process = subprocess.Popen(['grep', searchString, fileName], stdout=subprocess.PIPE)
+    hosts_out, hosts_err = hosts_process.communicate()
+    stratLookup = str(hosts_out)[2:-3]
+    print(stratLookup)
+    eandsList = stratLookup.split(',')
+    return eandsList
 
 # outside Encoding class
 def spawn(prog, *args):                       # pass progname, cmdline args
@@ -139,6 +150,8 @@ def spawn(prog, *args):                       # pass progname, cmdline args
 
 
 if __name__ == '__main__':
-    crossbreed('encoding0.txt', 'encoding1.txt')
-    moveToArchive(0)
-    spawn('Java', '-jar', 'match-wrapper-1.3.2.jar', "$(cat wrapper-commands.json)")
+    # crossbreed('encoding0.txt', 'encoding1.txt')
+    # moveToArchive(0)
+    list = grepSearch('1_01_0__0', 'encoding0.txt')
+    print(list[0])
+    # spawn('java', '-jar', 'match-wrapper-1.3.2.jar', "$(cat wrapper-commands.json)")
