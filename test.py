@@ -4,6 +4,7 @@ from random import randint
 import sys
 import subprocess
 from util import Move
+import json
 
 def crossbreed(fname1, fname2):
     file1 = open(fname1)
@@ -127,6 +128,18 @@ def grepSearch(searchString, fileName):
     eandsList = stratLookup.split(',')
     return eandsList
 
+# Thank you Julian for these two methods
+def load_from_json():
+    with open('resultfile.json') as f:
+        data = json.load(f)
+    winner = jsonDataToWinner(data)
+    f.close()
+    return winner
+
+def jsonDataToWinner(data):
+    return json.loads(data['details'])['winner']
+
+
 # outside Encoding class
 def spawn(prog, *args):                       # pass progname, cmdline args
     stdinFd = sys.stdin.fileno()              # get descriptors for streams
@@ -146,12 +159,13 @@ def spawn(prog, *args):                       # pass progname, cmdline args
         os.dup2(childStdout, stdoutFd)        # my sys.stdout copy = pipe1[1]
         args = (prog,) + args
         os.execvp(prog, args)                 # new program in this process
-        assert False, 'execvp failed!'        # os.exec call never returns here
+        assert False, 'execvp failed!'        # os.exec call never returns hered
 
 
 if __name__ == '__main__':
     # crossbreed('encoding0.txt', 'encoding1.txt')
     # moveToArchive(0)
-    list = grepSearch('1_01_0__0', 'encoding0.txt')
-    print(list[0])
+    #list = grepSearch('1_01_0__0', 'encoding0.txt')
+    #print(list[0])
+    print(load_from_json())
     # spawn('java', '-jar', 'match-wrapper-1.3.2.jar', "$(cat wrapper-commands.json)")

@@ -433,9 +433,6 @@ class BotParser:
                     # sys.stdout.write(move.toString())
                     self.output(move.toString())
                 else:
-                    # TODO: I AM RETURNING SOMETHING THAT ISN'T A MOVE SOMEWHERE
-                    # TODO: THIS IS WHY I THINK
-                    # sys.stdout.write("pass")
                     self.output("pass")
         else:
             self.__log.write("Unknown command: {} \n".format(message))

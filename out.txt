@@ -1,2 +1,0 @@
-geneList = <0>
-finished initializing botStarter

@@ -4,8 +4,6 @@ import random
 import json
 import subprocess
 
-# TODO: make another main for the second bot that moves randomly
-# TODO: then change the file path for that second bot
 
 def go():
     # create a botStarter object
@@ -14,6 +12,7 @@ def go():
     parser = BotParser(bot)
     # Comment/uncomment the line below to start/stop the parser from actually running
     parser.run()
+
 
 class BotStarter:
     # Holds the current gene number we are working with
@@ -25,17 +24,17 @@ class BotStarter:
         # Uncomment below if you want to re-create a random set of encodings AKA Gen 1
         # d.createRandomFile()
         # set the current gene num we are working with
-        outFile = open('out.txt', 'r+')
-        outFile.truncate()
+        # outFile = open('out.txt', 'r+')
+        # outFile.truncate()
         self.currGene = open('geneList.txt', 'r+').readline()
         if len(self.currGene) > 1:
             self.currGene = self.currGene[0]
-        outFile.write('geneList = <' + self.currGene + '>\n')
+        # outFile.write('currGene = <' + self.currGene + '>\n')
         # set the current file name of the encoding
         self.currFilename = 'encoding' + str(self.currGene) + '.txt'
         #  delete the first line of the file so we know that we have done that particular run
         self.delFirstLine(self.currFilename)
-        outFile.write('finished initializing botStarter\n')
+        # outFile.write('finished initializing botStarter\n')
 
     @staticmethod
     def delFirstLine(fName):
@@ -76,6 +75,9 @@ class BotStarter:
     # It takes in a state will return a move based on the strat for the given board encoding
     def wwbd2(self, state):
         currField = state.getField()
+        outFile = open('out.txt', 'r+')
+        outFile.truncate()
+        outFile.truncate(str(currField))
         evalReturn = currField.evalMacroboard()
         encodingNeeded = self.grepSearch(evalReturn, self.currFilename)
         # if the length of the
@@ -202,6 +204,9 @@ class BotStarter:
 
     def doMove(self, state):
         bestMove = self.wwbd2(state)
+        # outFile = open('out.txt', 'r+')
+        # outFile.truncate()
+        # outFile.write('moveX:' + str(bestMove.getX()()) + ' moveY:' + (bestMove.getY()))
         return bestMove
 
 

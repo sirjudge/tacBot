@@ -1,49 +1,9 @@
 import random
 import os
 import sys
+import subprocess
 from random import randint
 
-"""
-# decoding list is a list of tuples (encoding,fitness)
-class Decoding:
-    geneList = []
-    generationNumber = -1
-    dnaNum = -1
-
-    def __init__(self):
-        for notOriginalName in range(0, 10):
-            fname = 'encoding' + str(notOriginalName) + '.txt'
-            file = open(fname, 'r+')
-            i = 0
-            decodeList = []
-            for line in file:
-                if i == 0:
-                    self.generationNumber = line
-                elif i == 1:
-                    self.dnaNum = line
-                else:
-                    decodeList.append(line)
-            self.geneList.append(decodeList)
-
-    # Getters and Setters
-    def setGenerationNumber(self, genNum):
-        self.generationNumber = genNum
-
-    def setGeneList(self, encode):
-        self.geneList = encode
-
-    def getGeneList(self):
-        return self.geneList
-
-    def getGenerationNum(self):
-        return self.generationNumber
-
-    def getDNANum(self):
-        return self.generationNumber
-
-    def setDNANum(self, num):
-        self.dnaNum = num
-"""
 
 class Encoding:
     # Master list of all sets of encodings
@@ -64,10 +24,13 @@ class Encoding:
             for line in file:
                 if i == 0:
                     self.generationNumber = line
+                    print('genNum:' + str(self.generationNumber))
                 elif i == 1:
                     self.dnaNum = line
+                    print('dnaNum:' + str(self.dnaNum))
                 else:
                     decodeList.append(line.split(','))
+                i += 1
             self.encodingList.append(decodeList)
 
     # Method simply creates 500 random strategies
@@ -82,11 +45,11 @@ class Encoding:
             # Clear the file
             file.truncate()
             # Write the Generation Number
-            file.write('0')
+            file.write('0\n')
             # Write the encoding name
-            file.write(str(notOriginalName))
+            file.write(str(notOriginalName) + '\n')
             # Create 500 random strats
-            for x in range(0, 500):
+            for encoNum in range(0, 500):
                 for y in range(0, 9):
                     i = randint(0, 2)
                     file.write(sList[i])
@@ -109,7 +72,6 @@ class Encoding:
     def getGenerationNum(self):
         return self.generationNumber
 
-    # TODO: These need to change
     def writeToLog(self):
         for notOriginalName in range(0, 10):
             fname = 'encoding' + str(notOriginalName) + '.txt'
@@ -128,20 +90,16 @@ class Encoding:
     # Moves an encoding file to archived folder
     def moveToArchive(self):
         generationNum = str(self.generationNumber)
-        os.system('mkdir /home/nico/Documents/CompSci/440/tacBot/archivedLogs/gen' + generationNum)
-        for encodingNum in range(0, 10):
-            fname = 'encoding' + str(encodingNum) + '.txt'
-            os.system(
-                'cp /home/nico/Documents/CompSci/440/tacBot/' + fname
-                + ' /home/nico/Documents/CompSci/440/tacBot/archivedLogs/gen0/' + fname)
-
-    @staticmethod
-    def howManyLines(fname):
-        file = open(fname)
-        i = 0
-        for line in file:
-            i += 1
-        return i
+        # Check to see if the directory exists or not
+        if os.path.isdir('archivedLogs/gen' + generationNum):
+            print('directory already exists')
+        else:
+            os.system('mkdir /home/nico/Documents/CompSci/440/tacBot/archivedLogs/gen' + generationNum)
+            for encodingNum in range(0, 10):
+                fname = 'encoding' + str(encodingNum) + '.txt'
+                os.system(
+                    'cp /home/nico/Documents/CompSci/440/tacBot/' + fname
+                    + ' /home/nico/Documents/CompSci/440/tacBot/archivedLogs/gen0/' + fname)
 
     def crossbreed(self, f1, f2):
         file1 = open(f1)
@@ -168,20 +126,24 @@ class Encoding:
         # If the length of the two lists is not equal then quit
         if not len(encList1) == len(encList2):
             print('encoding lists are different sizes')
+            print('len of enc1:' + str(len(encList1)))
+            print('len of enc2:' + str(len(encList2)))
+
             pass
         # choose a random point to switch encodings
         crossPoint = random.randint(0, len(encList1))
         # create a random number between 0-100
         crossChance = random.randint(0, 100)
+        print('CrossChance:' + str(crossChance) + '\nCrossPoint:' + str(crossPoint))
+
         # 10% chance to crossbreed
-        if crossChance <= 10:
+        if crossChance <= 30:
             for i in range(len(encList1)):
                 # go up to the crosspoint in both lists, append them to their normal spots,
                 # but switch the second parts of each list
                 # ex.
                 # new_encoding_1 = first_half_enc1 + second_half_enc2
                 # new_encoding_2 = first_half_enc2 + second_half_enc1
-                print('crosspoint = ' + str(i))
                 if i < crossPoint:
                     newEncList1.append(encList1[i])
                     newEncList2.append(encList2[i])
@@ -261,22 +223,29 @@ def spawn(prog, *args):                       # pass progname, cmdline args
         assert False, 'execvp failed!'        # os.exec call never returns here
 
 
+def startUp():
+    # change double quotes to single quotes
+    bashCommand = 'java -jar match-wrapper-1.3.2.jar \"$(cat wrapper-commands.json)\"'
+    process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+    output, error = process.communicate()
+    print('Error with running bash command')
+    print(error)
+
+
 if __name__ == '__main__':
-
     e = Encoding()                      # Create the list of encodings
-    #e.createRandomFile()
-
+    e.createRandomFile()               # Uncomment the beginning of this line to re-create gen0
     currEncoding = e.getEncoding()      # create local variable for encoding list
-
     # Spawns a new main each time it's run. will run 10 mains at a time, 1 for each encoding
     # java -jar match-wrapper-1.3.2.jar "$(cat wrapper-commands.json)"
     for x in range(0, 10):
         print('running encoding ' + str(x))
-        spawn('java', '-jar', 'match-wrapper-1.3.2.jar', "$(cat wrapper-commands.json)")
+        # spawn('java', '-jar', 'match-wrapper-1.3.2.jar', "$(cat wrapper-commands.json)")
+        startUp()
 
     # Do crossbreeding and mutate and clean up here
     for encNum in range(0, 8):
-        fname1 = 'encoding' + str(encNum)
-        fname2 = 'encoding' + str(encNum + 1)
+        fname1 = 'encoding' + str(encNum) + '.txt'
+        fname2 = 'encoding' + str(encNum + 1) + '.txt'
         e.crossbreed(fname1, fname2)
     e.moveToArchive()
