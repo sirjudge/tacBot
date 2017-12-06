@@ -2,10 +2,11 @@
 import random
 from util import *
 
-
 """
 This main is used to play against. DO NOT CHANGE ANYTHING. IT WILL ALWAYS MAKE A RANDOM MOVE
 """
+
+
 def go():
     bot = BotStarter()
     parser = BotParser(bot)
@@ -15,10 +16,11 @@ def go():
 class BotStarter:
     def __init__(self):
         random.seed()
-        
-    def doMove(self, state):
+
+    @staticmethod
+    def doMove(state):
         moves = state.getField().getAvailableMoves()
-        if (len(moves) > 0):
+        if len(moves) > 0:
             return moves[random.randrange(len(moves))]
         else:
             return None

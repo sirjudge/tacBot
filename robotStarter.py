@@ -200,27 +200,35 @@ class Encoding:
                 outEnc = boardEnc + stratEnc[0:minBit - 1] + stratEnc[minBit + 1:maxBit]
         return outEnc
 
+    @staticmethod
+    def resetGeneFile():
+        file = open('geneList.txt', 'r+')
+        file.truncate()
+        for el in range(0, 9):
+            file.write(str(el) + '\n')
+        file.write('!' + '\n')
+        file.close()
 
 # outside Encoding class
-def spawn(prog, *args):                       # pass progname, cmdline args
-    stdinFd = sys.stdin.fileno()              # get descriptors for streams
-    stdoutFd = sys.stdout.fileno()            # normally stdin=0, stdout=1
-    parentStdin, childStdout = os.pipe()      # make two IPC pipe channels
-    childStdin,  parentStdout = os.pipe()     # pipe returns (inputfd, outoutfd)
-    pid = os.fork()                           # make a copy of this process
-    if pid:
-        os.close(childStdout)                 # in parent process after fork:
-        os.close(childStdin)                  # close child ends in parent
-        os.dup2(parentStdin,  stdinFd)        # my sys.stdin copy  = pipe1[0]
-        os.dup2(parentStdout, stdoutFd)       # my sys.stdout copy = pipe2[1]
-    else:
-        os.close(parentStdin)                 # in child process after fork:
-        os.close(parentStdout)                # close parent ends in child
-        os.dup2(childStdin,  stdinFd)         # my sys.stdin copy  = pipe2[0]
-        os.dup2(childStdout, stdoutFd)        # my sys.stdout copy = pipe1[1]
-        args = (prog,) + args
-        os.execvp(prog, args)                 # new program in this process
-        assert False, 'execvp failed!'        # os.exec call never returns here
+# def spawn(prog, *args):                       # pass progname, cmdline args
+#    stdinFd = sys.stdin.fileno()              # get descriptors for streams
+#    stdoutFd = sys.stdout.fileno()            # normally stdin=0, stdout=1
+#    parentStdin, childStdout = os.pipe()      # make two IPC pipe channels
+#    childStdin,  parentStdout = os.pipe()     # pipe returns (inputfd, outoutfd)
+#    pid = os.fork()                           # make a copy of this process
+#    if pid:
+#        os.close(childStdout)                 # in parent process after fork:
+#        os.close(childStdin)                  # close child ends in parent
+#        os.dup2(parentStdin,  stdinFd)        # my sys.stdin copy  = pipe1[0]
+#        os.dup2(parentStdout, stdoutFd)       # my sys.stdout copy = pipe2[1]
+#    else:
+#        os.close(parentStdin)                 # in child process after fork:
+#        os.close(parentStdout)                # close parent ends in child
+#        os.dup2(childStdin,  stdinFd)         # my sys.stdin copy  = pipe2[0]
+#        os.dup2(childStdout, stdoutFd)        # my sys.stdout copy = pipe1[1]
+#        args = (prog,) + args
+#        os.execvp(prog, args)                 # new program in this process
+#        assert False, 'execvp failed!'        # os.exec call never returns here
 
 
 def startUp():
@@ -240,7 +248,6 @@ if __name__ == '__main__':
     # java -jar match-wrapper-1.3.2.jar "$(cat wrapper-commands.json)"
     for x in range(0, 10):
         print('running encoding ' + str(x))
-        # spawn('java', '-jar', 'match-wrapper-1.3.2.jar', "$(cat wrapper-commands.json)")
         startUp()
 
     # Do crossbreeding and mutate and clean up here
@@ -249,3 +256,5 @@ if __name__ == '__main__':
         fname2 = 'encoding' + str(encNum + 1) + '.txt'
         e.crossbreed(fname1, fname2)
     e.moveToArchive()
+    e.resetGeneFile()
+

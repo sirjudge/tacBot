@@ -3,8 +3,9 @@ import os
 from random import randint
 import sys
 import subprocess
-from util import Move
+from util import*
 import json
+
 
 def crossbreed(fname1, fname2):
     file1 = open(fname1)
@@ -120,13 +121,21 @@ def moveToArchive(genNum):
 # OLD TESTING STUFF ABOVE THIS LINE
 # ==================================
 
+
+# Use grep command to search through encoding file for the first line that the string is in
 def grepSearch(searchString, fileName):
     hosts_process = subprocess.Popen(['grep', searchString, fileName], stdout=subprocess.PIPE)
     hosts_out, hosts_err = hosts_process.communicate()
-    stratLookup = str(hosts_out)[2:-3]
-    print(stratLookup)
-    eandsList = stratLookup.split(',')
-    return eandsList
+    if hosts_out:
+        stratLookup = str(hosts_out)[2:-3]
+        eandsList = stratLookup.split(',')
+        return eandsList
+    else:
+        randomList = random.sample(range(9), 9)
+        strat = ''
+        for x in randomList:
+            strat += str(x)
+        return [searchString, strat]
 
 # Thank you Julian for these two methods
 def load_from_json():
@@ -162,10 +171,65 @@ def spawn(prog, *args):                       # pass progname, cmdline args
         assert False, 'execvp failed!'        # os.exec call never returns hered
 
 
+def delFirstLine(fName):
+    # reads file and loads it into data variable
+    with open(fName, 'r') as fin:
+        data = fin.read().splitlines(True)
+    # open the file again in write mode, and rewrite the file line by line ignoring the first line in the file
+    with open(fName, 'w') as fout:
+        fout.writelines(data[1:])
+    fout.close()
+    fin.close()
+
+
+def createRandomFile():
+    sList = ['0', '1', '_']
+    # Creates 10 files
+    for notOriginalName in range(0, 10):
+        fname = 'encoding' + str(notOriginalName) + '.txt'
+        file = open(fname, 'r+')
+        # Clear the file
+        file.truncate()
+        # Write the Generation Number
+        file.write('0\n')
+        # Write the encoding name
+        file.write(str(notOriginalName) + '\n')
+        # Create 500 random strats
+        for encoNum in range(0, 500):
+            for y in range(0, 9):
+                i = randint(0, 2)
+                file.write(sList[i])
+            randomList = random.sample(range(9), 9)
+            encString = ''
+            for z in randomList:
+                encString = encString + str(z)
+            file.write(',' + encString + '\n')
+
+def resetGeneFile():
+    file = open('geneList.txt','r+')
+    file.truncate()
+    for x in range(0, 9):
+        file.write(str(x) + '\n')
+    file.write('!' + '\n')
+    file.close()
+
+
 if __name__ == '__main__':
-    # crossbreed('encoding0.txt', 'encoding1.txt')
-    # moveToArchive(0)
-    #list = grepSearch('1_01_0__0', 'encoding0.txt')
-    #print(list[0])
-    print(load_from_json())
+    resetGeneFile()
+
+    f = Field()
+    print(f.toString())
+
+    """
+    crossbreed('encoding0.txt', 'encoding1.txt')
+    moveToArchive(0)
+    createRandomFile()
+    
+    delFirstLine('geneList.txt')
+    glist = grepSearch('333333333', 'encoding0.txt')
+    print(glist)
+    for x in glist:
+        print('<' + x + '>')
+    #print(load_from_json())
     # spawn('java', '-jar', 'match-wrapper-1.3.2.jar', "$(cat wrapper-commands.json)")
+    """

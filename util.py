@@ -27,6 +27,15 @@ class Field:
         for row in range(self.__NUM_ROWS // 3):
             self.__mMacroboard.append(list(null_row))
 
+    def getMacroboard(self):
+        return self.__mMacroboard
+
+    def printMicroboard(self):
+        print(self.toString())
+
+    def getMicroboard(self):
+        return self.__mBoard
+
     def evalMacroboard(self):
         outEval = ''
         for row in self.__mMacroboard:
@@ -38,7 +47,6 @@ class Field:
                 else:
                     outEval += '_'
         return outEval
-
 
     # sets the values of the board from a given string s of inputs
     def parseFromString(self, s):
@@ -61,7 +69,7 @@ class Field:
                 self.__mMacroboard[x][y] = r[counter]
                 counter += 1
 
-    # Returns true if space x,y is an empty field
+    # Returns true if space x,y is an empty field in microboard
     def isActiveSpace(self, x, y):
         return self.__mBoard[x][y] == self.__EMPTY_FIELD
 
@@ -79,7 +87,36 @@ class Field:
     def isInActiveMicroboard(self, x, y):
         return self.__mMacroboard[x // 3][y // 3] == self.__AVAILABLE_FIELD
 
-    # gets called when trying to print out a field object. Creates a more readable print statement
+    """
+    "# gets called when trying to print out a field object. Creates a more readable print statement
+    def toString(self):
+        r = ""
+        rowsPrinted = 0
+        sectCount = 0
+        elemCount = 0
+        for y in range(self.__NUM_ROWS):
+            for x in range(self.__NUM_COLS):
+                if 0 <= elemCount <= 8:
+                    if 0 <= sectCount <= 2:
+                        r += " "
+                        r += self.__mBoard[x][y]
+                        sectCount += 1
+                        elemCount += 1
+                    else:
+                        r += '||'
+                        sectCount = 0
+                else:
+                    elemCount = 0
+                    rowsPrinted += 1
+                    if rowsPrinted == 3 or rowsPrinted == 6:
+                        r += '\n========================\n'
+                    else:
+                        r += '\n'
+                    sectCount = 0
+
+        return r + '\n'
+        """
+
     def toString(self):
         r = ""
         counter = 0
@@ -87,9 +124,9 @@ class Field:
             for x in range(self.__NUM_COLS):
                 if counter > 0:
                     r += ","
-                r += self.__mBoard[x][y]
+                    r += self.__mBoard[x][y]
                 counter += 1
-        return r
+        return r + '\n'
 
     # if every cell in the board if full return true, else return false
     def isFull(self):
@@ -128,166 +165,6 @@ class Field:
 
     def setOpponentId(self, i):
         self.__opponentId = i
-
-
-    @staticmethod
-    def eval(sList):
-        # Counter variable for X and O
-        p1Count = 0
-        p2Count = 0
-        # loop through elements in the passed in list of moves for the board
-        # each move is either 'X', 'O', or '_'
-        # set up counter variables
-
-        # sList will be horzEval, vertEval, diagEval
-        # X is current player
-        # Y is opponent
-        # _ is a blank space
-        evalList = []
-        for typeEval in sList:
-            for move in typeEval:
-                if move == 'X':
-                    p1Count += 1
-                elif move == 'O':
-                    p2Count += 1
-            evalList.append([typeEval, p1Count, p2Count])
-        # Evaluates what case the board is in
-        # not important
-        if p1Count == 0 and p2Count == 0:
-            return 1
-        # not important
-        elif p1Count == 1 and p2Count == 0:
-            return 2
-        # win for player 1, lose for player 2
-        elif p1Count == 2 and p2Count == 0:
-            return 3
-        # not important
-        elif p1Count == 0 and p2Count == 1:
-            return 4
-        # not important
-        elif p1Count == 1 and p2Count == 1:
-            return 5
-        # win for player 1, lose for player 2
-        elif p1Count == 2 and p2Count == 1:
-            return 6
-        # lose for player 1, win for player 2
-        elif p1Count == 0 and p2Count == 2:
-            return 7
-        # lose for player 1, win for player 2
-        elif p1Count == 1 and p2Count == 2:
-            return 8
-        # Tie for both
-        elif p1Count == 2 and p2Count == 2:
-            return 9
-    
-    # moves are done using playerID not X or O - usually an integer, 0 or 1
-    # getPlayerID method takes an x and a y argument for where in the board you go
-    # checks how close a win case is for horizontal, vertical, and horizontal
-    def horizontal(self):
-        currRow = []
-        rowEvals = []
-        bNumList = [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
-
-        for x in bNumList:
-            for y in x:
-                if self.__mMacroboard[y] == self.getMyId():
-                    currRow.append('X')
-                elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[y] == self.__AVAILABLE_FIELD:
-                    currRow.append('_')
-                else:
-                    currRow.append('O')
-            rowEvals.append((self.eval(currRow), currRow))
-            currRow = []
-        return rowEvals
-
-    def vertical(self):
-        currRow = []
-        colEvals = []
-        bNumList = [[0, 3, 4], [1, 4, 7], [2, 5, 8]]  # three different columns
-
-        for x in bNumList:
-            for y in x:
-                if self.__mMacroboard[y] == self.getMyId():
-                    currRow.append('X')
-                elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[y] == self.__AVAILABLE_FIELD:
-                    currRow.append('_')
-                else:
-                    currRow.append('O')
-            colEvals.append((self.eval(currRow), currRow))
-            currRow = []
-        return colEvals
-
-    # works similar to vertical and horizontal, see above comments
-    def diagonal(self):
-        currDiag = []
-        bNumList = [[0, 4, 8], [2, 4, 6]]
-        diagEvals = []
-        for x in bNumList:
-            for y in x:
-                if self.__mMacroboard[y] == self.getMyId():
-                    currDiag.append('X')
-                elif self.__mMacroboard[y] == self.__EMPTY_FIELD or self.__mMacroboard[y] == self.__AVAILABLE_FIELD:
-                    currDiag.append('_')
-                else:
-                    currDiag.append('O')
-            diagEvals.append((self.eval(currDiag), currDiag))
-        return diagEvals
-
-    @staticmethod
-    def threevalToEncode(horz, vert, diag):
-        row1 = horz[1][0]
-        row2 = horz[1][1]
-        row3 = horz[1][2]
-        currBoard = row1 + row2 + row3
-
-        for a in horz:
-            print('horz[' + a + '] = ' + horz[a])
-            for b in a:
-                print('horz[' + a + ']' + '[' + b + '] = ' + horz[a][b])
-
-        for c in vert:
-            print('vert[' + c + '] = ' + vert[c])
-            for d in c:
-                print('vert[' + c + ']' + '[' + d + '] = ' + vert[c][d])
-
-        for e in diag:
-            print('diag[' + e + '] = ' + diag[e])
-            for f in e:
-                print('diag[' + e + ']' + '[' + f + '] = ' + diag[e][f])
-
-        print('Board = ' + currBoard)
-        winList = []
-        # (e1,e2,e3)
-        for g in range(0, 2):
-            if horz[0][g] >= 2:
-                winList.append('horz' + str(g))
-        for h in range(0, 2):
-            if horz[0][h] >= 2:
-                winList.append('vert' + str(h))
-        for i in range(0, 1):
-            if diag[0][i] >= 1:
-                winList.append('diag' + str(i))
-        # good move to make
-        goodMoves = []
-        # gooder move to make
-        gooderMoves = []
-        # Loop through winList and filter good + gooder moves
-        for q in winList:
-            if winList[q][0:3] == 'horz':
-                if winList[q][4] == 2:
-                    gooderMoves.append(winList[q])
-                elif winList[q][4] == 1:
-                    goodMoves.append(winList[q])
-            if winList[q][0:3] == 'vert':
-                if winList[q][4] == 2:
-                    gooderMoves.append(winList[q])
-                elif winList[q][4] == 1:
-                    goodMoves.append(winList[q])
-            if winList[q][0:3] == 'diag':
-                if winList[q][4] == 2:
-                    gooderMoves.append(winList[q])
-                elif winList[q][4] == 1:
-                    goodMoves.append(winList[q])
 
 
 # pretty self explanatory class. It has the x and y values of the move you want to make
@@ -495,6 +372,7 @@ class Log:
             self.__FNAME = fname
 
         self.__FILE = open(self.__FNAME, 'w')
+        self.__FILE.flush()
 
     def write(self, msg):
         self.__FILE.write(msg)
