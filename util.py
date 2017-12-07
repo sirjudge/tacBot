@@ -83,6 +83,9 @@ class Field:
                     moves.append(Move(x, y))
         return moves
 
+    def getMacroBoard(self):
+        return self.__mMacroboard
+
     # Returns false if the the micro board has been finished
     def isInActiveMicroboard(self, x, y):
         return self.__mMacroboard[x // 3][y // 3] == self.__AVAILABLE_FIELD

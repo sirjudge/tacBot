@@ -1,11 +1,41 @@
-,0,.,1,.,.,0,.,.,0,0,.,.,.,.,.,.,.,0,.,.,.,.,.,.,.,.,1,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,1,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.
-Box:0
-Box:1
-Box:6
-Box:7
-Box:3
-Box:2
-Box:8
-Box:5
-Box:4
-EMERGENCY, I SHOULD NOT HAVE RETURNED. IF YOU SEE THIS SOMETHING IS VERY WRONG 
+,0,1,.,1,.,.,.,0,0,0,1,1,0,1,1,1,1,1,1,1,0,.,1,0,1,1,.,0,0,.,0,1,.,.,0,1,0,.,1,1,.,0,0,0,0,.,.,1,1,.,1,.,1,.,1,0,.,.,.,.,0,0,0,0,1,1,0,.,.,0,0,0,0,1,1,0,0,1,.,0
+is board 0 active? False
+is board 1 active? True
+is board 2 active? False
+is board 3 active? False
+is board 4 active? False
+is board 5 active? False
+is board 6 active? False
+is board 7 active? True
+is board 8 active? False
+box:0=1
+box:1=0
+box:2=0
+box:3=-1
+box:4=1
+box:5=-1
+box:6=1
+box:7=0
+box:8=0
+x:3  y:0
+x:3  y:1
+x:3  y:2
+x:3  y:6
+x:3  y:7
+x:3  y:8
+x:4  y:0
+x:4  y:1
+x:4  y:2
+x:4  y:6
+x:4  y:7
+x:4  y:8
+x:5  y:0
+x:5  y:1
+x:5  y:2
+x:5  y:6
+x:5  y:7
+x:5  y:8
+openBox:8
+openBox:4
+openBox:0
+openBox:2

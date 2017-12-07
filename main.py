@@ -111,65 +111,196 @@ class BotStarter:
         #       go check the next box
         # 012345678
         availableBox = []
+        fileOut.write('is board 0 active? ' + str(currField.isInActiveMicroboard(0, 0)) + '\n')
+        fileOut.write('is board 1 active? ' + str(currField.isInActiveMicroboard(3, 0)) + '\n')
+        fileOut.write('is board 2 active? ' + str(currField.isInActiveMicroboard(6, 0)) + '\n')
+        fileOut.write('is board 3 active? ' + str(currField.isInActiveMicroboard(0, 3)) + '\n')
+        fileOut.write('is board 4 active? ' + str(currField.isInActiveMicroboard(3, 3)) + '\n')
+        fileOut.write('is board 5 active? ' + str(currField.isInActiveMicroboard(6, 3)) + '\n')
+        fileOut.write('is board 6 active? ' + str(currField.isInActiveMicroboard(0, 6)) + '\n')
+        fileOut.write('is board 7 active? ' + str(currField.isInActiveMicroboard(3, 6)) + '\n')
+        fileOut.write('is board 8 active? ' + str(currField.isInActiveMicroboard(6, 6)) + '\n')
+
+        # print the macro board
+        countey = 0
+        for thing in currField.getMacroBoard():
+            for thingy in thing:
+                fileOut.write('box:' + str(countey) + '=' + thingy + '\n')
+                countey += 1
+
         for x in range(0, 9):
+            # fileOut.write('when checking available box x=' + str(x) +'\n')
             for y in range(0, 9):
+                # fileOut.write('when checking available box y=' + str(y) + '\n')
                 if currField.isInActiveMicroboard(x, y):
-                            # ROW ONE #
-                    if 0 <= x <= 2 and 0 <= y <= 3:
-                        availableBox.append('0')
-                    elif 3 <= x <= 5 and 0 <= y <= 3:
-                        availableBox.append('1')
-                    elif 6 <= x <= 8 and 0 <= y <= 3:
-                        availableBox.append('2')
-                            # ROW TWO #
-                    elif 0 <= x <= 3 and 3 <= y <= 5:
-                        availableBox.append('3')
+                    fileOut.write('x:' + str(x) + '  y:' + str(y) + '\n')
+                    # ROW ONE #
+                    if 0 <= x <= 2 and 0 <= y <= 2:
+                        availableBox.append(0)
+                    elif 3 <= x <= 5 and 0 <= y <= 2:
+                        availableBox.append(1)
+                    elif 6 <= x <= 8 and 0 <= y <= 2:
+                        availableBox.append(2)
+                    # ROW TWO #
+                    elif 0 <= x <= 2 and 3 <= y <= 5:
+                        availableBox.append(3)
                     elif 3 <= x <= 5 and 3 <= y <= 5:
-                        availableBox.append('4')
+                        availableBox.append(4)
                     elif 6 <= x <= 8 and 3 <= y <= 5:
-                        availableBox.append('5')
-                            # ROW THREE #
+                        availableBox.append(5)
+                    # ROW THREE #
                     elif 0 <= x <= 2 and 6 <= y <= 8:
-                        availableBox.append('6')
+                        availableBox.append(6)
                     elif 2 <= x <= 5 and 6 <= y <= 8:
-                        availableBox.append('7')
+                        availableBox.append(7)
                     elif 6 <= x <= 8 and 6 <= y <= 8:
-                        availableBox.append('8')
-        topLeft = {
+                        availableBox.append(8)
+        # checked
+        topLeft = [
             (0, 0), (3, 0), (6, 0), (0, 3), (3, 3), (6, 3), (0, 6), (3, 6), (6, 6)
-        }
-        topMiddle = {
+        ]
+        # checked
+        topMiddle = [
             (1, 0), (4, 0), (7, 0), (1, 3), (4, 3), (7, 3), (1, 6), (4, 6), (7, 6)
-        }
-        topRight = {
+        ]
+        # checked
+        topRight = [
             (2, 0), (5, 0), (8, 0), (2, 3), (5, 3), (8, 3), (2, 6), (5, 6), (8, 6)
-        }
-        middleLeft = {
+        ]
+        # checked
+        # This one was wrong lol
+        middleLeft = [
+            (0, 1), (3, 1), (6, 1), (0, 4), (3, 4), (6, 4), (0, 7), (3, 7), (6, 7)
+        ]
+        # checked
+        middleMiddle = [
             (1, 1), (4, 1), (7, 1), (1, 4), (4, 4), (7, 4), (1, 7), (4, 7), (7, 7)
-        }
-        middleMiddle = {
-            (1, 1), (4, 1), (7, 1), (1, 4), (4, 4), (7, 4), (1, 7), (4, 7), (7, 7)
-        }
-        middleRight = {
+        ]
+        # checked
+        middleRight = [
             (2, 1), (5, 1), (8, 1), (2, 4), (5, 4), (8, 4), (2, 7), (5, 7), (8, 7)
-        }
-        bottomLeft = {
+        ]
+        # checked
+        bottomLeft = [
             (0, 2), (3, 2), (6, 2), (0, 5), (3, 5), (6, 5), (0, 8), (3, 8), (6, 8)
-        }
-        bottomMiddle = {
+        ]
+        # checked
+        bottomMiddle = [
             (1, 2), (4, 2), (7, 2), (1, 5), (4, 5), (7, 5), (1, 8), (4, 8), (7, 8)
-        }
-        bottomRight = {
+        ]
+        bottomRight = [
             (2, 2), (5, 2), (8, 2), (2, 5), (5, 5), (8, 5), (2, 8), (5, 8), (8, 8)
-        }
+        ]
 
-        for openBox in availableBox:
-            # TODO: map box to which space it needs to move in
+        # availableBox = list(set(availableBox))
+        for openBox in encodingNeeded:
+            fileOut.write('openBox:' + str(openBox) + '\n')
+            avBox = availableBox[0]
+            if openBox == '0':
+                # top left
+                """for x in topLeft:
+                    fileOut.write('x:' + str(x[0]) + '  y:' + str(x[1]) + '\n')
+                    fileOut.write('if statement:' + str(currField.isActiveSpace(x[0], x[1])
+                                                        and currField.isInActiveMicroboard(x[0], x[1])) + '\n')
+                    #if currField.isActiveSpace(x[0], x[1]):
+                    #    return Move(x[0], x[1])"""
+                if currField.isActiveSpace(topLeft[avBox][0], topLeft[avBox][1]):
+                    Move(topLeft[avBox][0], topLeft[avBox][1])
 
+            elif openBox == '1':
+                # top middle
+                """for x in topMiddle:
+                    fileOut.write('x:' + str(x[0]) + '  y:' + str(x[1]) + '\n')
+                    fileOut.write('if statement:' + str(currField.isActiveSpace(x[0], x[1])
+                                                        and currField.isInActiveMicroboard(x[0], x[1])) + '\n')
+                    if currField.isActiveSpace(x[0], x[1]):
+                        return Move(x[0], x[1])"""
+                if currField.isActiveSpace(topMiddle[avBox][0], topMiddle[avBox][1]):
+                    return Move(topMiddle[avBox][0], topMiddle[avBox][1])
+
+            elif openBox == '2':
+                #top right
+                """
+                # top right
+                for x in topRight:
+                    fileOut.write('x:' + str(x[0]) + '  y:' + str(x[1]) + '\n')
+                    fileOut.write('if statement:' + str(currField.isActiveSpace(x[0], x[1])
+                                                        and currField.isInActiveMicroboard(x[0], x[1])) + '\n')
+                    if currField.isActiveSpace(x[0], x[1]):
+                        return Move(x[0], x[1])"""
+                if currField.isActiveSpace(topRight[avBox][0], topRight[avBox][1]):
+                    return Move(topRight[avBox][0], topRight[avBox][1])
+
+            elif openBox == '3':
+                # Middle left
+                """for x in middleLeft:
+                    fileOut.write('x:' + str(x[0]) + '  y:' + str(x[1]) + '\n')
+                    fileOut.write('if statement:' + str(currField.isActiveSpace(x[0], x[1])
+                                                        and currField.isInActiveMicroboard(x[0], x[1])) + '\n')
+                    if currField.isActiveSpace(x[0], x[1]):
+                        return Move(x[0], x[1])"""
+                if currField.isActiveSpace(middleLeft[avBox][0], middleLeft[avBox][1]):
+                    return Move(middleLeft[avBox][0], middleLeft[avBox][1])
+
+            elif openBox == '4':
+                # Middle middle
+                """for x in middleMiddle:
+                    fileOut.write('x:' + str(x[0]) + '  y:' + str(x[1]) + '\n')
+                    fileOut.write('if statement:' + str(currField.isActiveSpace(x[0], x[1])
+                                                        and currField.isInActiveMicroboard(x[0], x[1])) + '\n')
+                    #if currField.isActiveSpace(x[0], x[1]):
+                    #    return Move(x[0], x[1])"""
+                if currField.isActiveSpace(middleMiddle[avBox][0], middleMiddle[avBox][1]):
+                    return Move(middleMiddle[avBox][0], middleMiddle[avBox][1])
+
+            elif openBox == '5':
+                # Middle right
+                """for x in middleRight:
+                    fileOut.write('x:' + str(x[0]) + '  y:' + str(x[1]) + '\n')
+                    fileOut.write('if statement:' + str(currField.isActiveSpace(x[0], x[1])
+                                                        and currField.isInActiveMicroboard(x[0], x[1])) + '\n')
+                    if currField.isActiveSpace(x[0], x[1]):
+                        return Move(x[0], x[1])"""
+                if currField.isActiveSpace(middleRight[avBox][0], middleRight[avBox][1]):
+                    return Move(middleRight[avBox][0], middleRight[avBox][1])
+
+            elif openBox == '6':
+
+                # Bottom left
+                """for x in bottomLeft:
+                    fileOut.write('x:' + str(x[0]) + '  y:' + str(x[1]) + '\n')
+                    fileOut.write('if statement:' + str(currField.isActiveSpace(x[0], x[1])
+                                                        and currField.isInActiveMicroboard(x[0], x[1])) + '\n')
+                    if currField.isActiveSpace(x[0], x[1]):
+                        return Move(x[0], x[1])"""
+                if currField.isActiveSpace(bottomLeft[avBox][0], bottomLeft[avBox][1]):
+                    return Move(bottomLeft[avBox][0], bottomLeft[avBox][1])
+
+            elif openBox == '7':
+                # Bottom middle
+                """for x in bottomMiddle:
+                    fileOut.write('x:' + str(x[0]) + '  y:' + str(x[1]))
+                    fileOut.write('if statement:' + str(currField.isActiveSpace(x[0], x[1])
+                                                        and currField.isInActiveMicroboard(x[0], x[1])))
+                    if currField.isActiveSpace(x[0], x[1]):
+                        return Move(x[0], x[1])"""
+                if currField.isActiveSpace(bottomMiddle[avBox][0], bottomMiddle[avBox][1]):
+                    return Move(bottomMiddle[avBox][0], bottomMiddle[avBox][1])
+
+            elif openBox == '8':
+                # Bottom right
+                """for x in bottomRight:
+                    fileOut.write('x:' + str(x[0]) + '  y:' + str(x[1]) + '\n')
+                    fileOut.write('if statement:' + str(currField.isActiveSpace(x[0], x[1])
+                                                        and currField.isInActiveMicroboard(x[0], x[1])) + '\n')
+                    if currField.isActiveSpace(x[0], x[1]):
+                        return Move(x[0], x[1])"""
+                if currField.isActiveSpace(bottomRight[avBox][0], bottomRight[avBox][1]):
+                    return Move(bottomRight[avBox][0], bottomRight[avBox][1])
 
             """for box in eandsList:
                 # Row 1
-                if box == '0':
+                if box ==also m '0':
                     xRange = [0, 1, 2]
                     yRange = [0, 1, 2]
                 elif box == '1':
@@ -339,7 +470,7 @@ class BotStarter:
     def doMove(self, state):
 
         bestMove = self.wwbd2(state)
-        if bestMove == Move(42, 42):
+        if bestMove == Move(41, 42):
             moves = state.getField().getAvailableMoves()
             if len(moves) > 0:
                 return moves[random.randrange(len(moves))]
