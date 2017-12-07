@@ -1,7 +1,6 @@
 import random
 import os
 from random import randint
-import sys
 import subprocess
 from util import*
 import json
@@ -216,9 +215,9 @@ def resetGeneFile():
 
 if __name__ == '__main__':
     resetGeneFile()
-
-    f = Field()
-    print(f.toString())
+    createRandomFile()
+    #f = Field()
+    #print(f.toString())
 
     """
     crossbreed('encoding0.txt', 'encoding1.txt')

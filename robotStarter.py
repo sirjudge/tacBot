@@ -1,7 +1,4 @@
-import random
-import os
-import sys
-import subprocess
+import random, os, subprocess
 from random import randint
 
 
@@ -159,6 +156,9 @@ class Encoding:
             newEncList2[lineNum] = self.mutateLine(line2)
         return newEncList1, newEncList2
 
+    def evalFitness(self,fname):
+        pass
+
     @staticmethod
     def mutateLine(encLine):
         # 0123456789012345678
@@ -178,7 +178,7 @@ class Encoding:
         outEnc = ''
         mutateChar1 = stratEnc[mutateBit]
         mutateChar2 = stratEnc[mutateBit2]
-        if mutateChance < 5:
+        if mutateChance <= 5:
             # Make sure we didn't choose the same two numbers
             # and if we did choose the same 2 numbers keep reassigning them until we get it
             # we only need to change bit2
@@ -209,31 +209,9 @@ class Encoding:
         file.write('!' + '\n')
         file.close()
 
-# outside Encoding class
-# def spawn(prog, *args):                       # pass progname, cmdline args
-#    stdinFd = sys.stdin.fileno()              # get descriptors for streams
-#    stdoutFd = sys.stdout.fileno()            # normally stdin=0, stdout=1
-#    parentStdin, childStdout = os.pipe()      # make two IPC pipe channels
-#    childStdin,  parentStdout = os.pipe()     # pipe returns (inputfd, outoutfd)
-#    pid = os.fork()                           # make a copy of this process
-#    if pid:
-#        os.close(childStdout)                 # in parent process after fork:
-#        os.close(childStdin)                  # close child ends in parent
-#        os.dup2(parentStdin,  stdinFd)        # my sys.stdin copy  = pipe1[0]
-#        os.dup2(parentStdout, stdoutFd)       # my sys.stdout copy = pipe2[1]
-#    else:
-#        os.close(parentStdin)                 # in child process after fork:
-#        os.close(parentStdout)                # close parent ends in child
-#        os.dup2(childStdin,  stdinFd)         # my sys.stdin copy  = pipe2[0]
-#        os.dup2(childStdout, stdoutFd)        # my sys.stdout copy = pipe1[1]
-#        args = (prog,) + args
-#        os.execvp(prog, args)                 # new program in this process
-#        assert False, 'execvp failed!'        # os.exec call never returns here
-
-
 def startUp():
     # change double quotes to single quotes
-    bashCommand = 'java -jar match-wrapper-1.3.2.jar \"$(cat wrapper-commands.json)\"'
+    bashCommand = 'java -jar match-wrapper-1.3.2.jar "$(cat wrapper-commands.json)"'
     process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
     output, error = process.communicate()
     print('Error with running bash command')
@@ -242,19 +220,12 @@ def startUp():
 
 if __name__ == '__main__':
     e = Encoding()                      # Create the list of encodings
-    e.createRandomFile()               # Uncomment the beginning of this line to re-create gen0
-    currEncoding = e.getEncoding()      # create local variable for encoding list
-    # Spawns a new main each time it's run. will run 10 mains at a time, 1 for each encoding
-    # java -jar match-wrapper-1.3.2.jar "$(cat wrapper-commands.json)"
-    for x in range(0, 10):
-        print('running encoding ' + str(x))
-        startUp()
-
+    startUp()
+    e.moveToArchive()
     # Do crossbreeding and mutate and clean up here
     for encNum in range(0, 8):
         fname1 = 'encoding' + str(encNum) + '.txt'
         fname2 = 'encoding' + str(encNum + 1) + '.txt'
         e.crossbreed(fname1, fname2)
-    e.moveToArchive()
     e.resetGeneFile()
 

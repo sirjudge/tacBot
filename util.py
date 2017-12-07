@@ -375,10 +375,10 @@ class Log:
             self.__FNAME = fname
 
         self.__FILE = open(self.__FNAME, 'w')
-        self.__FILE.flush()
 
     def write(self, msg):
         self.__FILE.write(msg)
+        self.__FILE.flush()
 
     def close(self):
         self.write("Closing log file.")
