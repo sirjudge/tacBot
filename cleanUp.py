@@ -5,7 +5,6 @@ from random import randint, sample
 
 class Encoding:
     # Master list of all sets of encodings
-    encodingList = []
     # Current Generation Number
     generationNumber = -1
     # GeneNum
@@ -15,21 +14,14 @@ class Encoding:
     # Line in encoding log will be
     # board encoding, strategy/policy, fitness score
     def __init__(self):
-        with open('encoding0.txt') as f:
-            self.generationNumber = f.readline()
-            f.close()
-
         for notOriginalName in range(0, 10):
             fname = 'encoding' + str(notOriginalName) + '.txt'
             file = open(fname, 'r+')
             i = 0
-            line = ''
             for line in file:
                 if i == 0:
                     self.generationNumber = line[:-1]
                     # print('genNum:' + str(self.generationNumber))
-                else:
-                    self.encodingList.append(line)
                 i += 1
             file.close()
 
@@ -82,23 +74,11 @@ class Encoding:
                     + ' /home/nico/Documents/CompSci/440/tacBot/archivedLogs/gen0/' + fname)
 
     def crossbreed(self, gene1, gene2):
+        fname1 = 'encoding' + str(gene1) + '.txt'
+        fname2 = 'encoding' + str(gene2) + '.txt'
 
-
-        newGen = int(self.generationNumber) + 1
-
-        fname1 = 'encoding' + gene1 + '.txt'
-        fname2 = 'encoding' + gene2 + '.txt'
-
-        nfname1 = 'ne' + str(gene1)
-        nfname2 = 'ne' + str(gene2)
-
-        print('genNum:' + str(newGen))
-        print('gene1:' + str(gene1))
-        print('gene2:' + str(gene2))
-        print('fname1:' + fname1)
-        print('fname2:' + fname2)
-        print('nfname1:' + nfname1)
-        print('nfname1:' + nfname2)
+        nfname1 = 'ne' + str(gene1) + '.txt'
+        nfname2 = 'ne' + str(gene2) + '.txt'
 
         # open the two actual encoding files
         file1 = open(fname1, 'r')
@@ -107,17 +87,7 @@ class Encoding:
         newFile1 = open(nfname1, 'w')
         newFile2 = open(nfname2, 'w')
         # increment the current generation number
-        currGenerationNum = int(self.generationNumber) + 1
         # write the new generation num to the new files
-        newFile1.write(str(currGenerationNum))
-        newFile2.write(str(currGenerationNum))
-        # write the gene numbers of the respective files
-        newFile1.write(str(gene1))
-        newFile2.write(str(gene2))
-
-        # the code below replaces the first line of a file with the next generation number
-        # os.system("sed -i '1c\\'" + str(newGen) + " " + f1)
-        # os.system("sed -i '1c\\:'" + str(newGen) + " " + f2)
 
         # List of two encodings
         encList1 = []
@@ -126,18 +96,31 @@ class Encoding:
         newEncList1 = []
         newEncList2 = []
         lineCount = 0
-        # lineCount = 0: gen num
-        # lineCount = 1: gene num
-        # lineCount >= 2: encoding lists
         for line in file1:
-            if lineCount >= 2:
+            if lineCount == 0:
+                currGen = line.strip()
+            elif lineCount == 1:
+                currGene = line.strip()
+            elif lineCount >= 2:
                 encList1.append(line)
             lineCount += 1
+
+        currGen = 0
         lineCount = 0
         for line in file2:
-            if lineCount >= 2:
+            if lineCount == 1:
+                currGene = line.strip()
+            elif lineCount >= 2:
                 encList2.append(line)
             lineCount += 1
+
+        newGen = int(currGen) + 1
+        newFile1.write(str(newGen) + '\n')
+        newFile2.write(str(newGen) + '\n')
+        # write the gene numbers of the respective files
+        newFile1.write(gene1 + '\n')
+        newFile2.write(gene2 + '\n')
+
         # If the length of the two lists is not equal then quit
         if not len(encList1) == len(encList2):
             print('encoding lists are different sizes')
@@ -145,14 +128,12 @@ class Encoding:
             print('len of enc2:' + str(len(encList2)))
             pass
         # choose a random point to switch encodings
-        crossPoint = randint(0, len(encList1))
+        crossPoint = randint(0, len(encList1)-1)
         # create a random number between 0-100
         crossChance = randint(0, 100)
-        #print('CrossChance:' + str(crossChance) + '\nCrossPoint:' + str(crossPoint))
-
         # 10% chance to crossbreed
-        if crossChance <= 30:
-            for i in range(len(encList1)):
+        if crossChance <= 100:
+            for i in range(len(encList1)-1):
                 # go up to the crosspoint in both lists, append them to their normal spots,
                 # but switch the second parts of each list
                 # ex.
@@ -164,18 +145,23 @@ class Encoding:
                 else:
                     newEncList1.append(encList2[i])
                     newEncList2.append(encList1[i])
-        # Why make two for loops when you can just write one?
-        for lineNum in range(len(newEncList1)):
-            line1 = newEncList1[lineNum]
-            line2 = newEncList2[lineNum]
-            # before adding it to the new encoding list we have to mutate each one
-            newEncList1[lineNum] = self.mutateLine(line1)
-            newEncList2[lineNum] = self.mutateLine(line2)
 
-        for winnerEncoding in newEncList1:
-            newFile1.write(winnerEncoding + '\n')
-        for winnerEncoding in newEncList2:
-            newFile2.write(winnerEncoding + '\n')
+            # Why make two for loops when you can just write one?
+            for lineNum in range(len(newEncList1)):
+                line1 = newEncList1[lineNum]
+                line2 = newEncList2[lineNum]
+                # before adding it to the new encoding list we have to mutate each one
+                newEncList1[lineNum] = self.mutateLine(line1)
+                newEncList2[lineNum] = self.mutateLine(line2)
+        else:
+            for t in range(len(encList1)):
+                newEncList1.append(encList1[t])
+                newEncList2.append(encList2[t])
+        # write each of the encodings to the new file
+        for encList1x in newEncList1:
+            newFile1.write(encList1x.strip() + '\n')
+        for encList2x in newEncList2:
+            newFile2.write(encList2x.strip() + '\n')
         # close each of the files
         file1.close()
         file2.close()
@@ -183,53 +169,59 @@ class Encoding:
         newFile2.close()
         # delete the current gene encoding and replace it with the new encoding
         # remove the previous encoding files
+        # remove the old files because we already archived them
         os.system('rm ' + fname1)
         os.system('rm ' + fname2)
         # rename the two files from tmp name to actual name
         # ie. ne0.txt changes to encoding0.txt
-        os.system('mv ' + nfname1 + ' ' + fname1)
-        os.system('mv ' + nfname2 + ' ' + fname2)
+        os.system('cp ' + nfname1 + ' ' + fname1)
+        os.system('cp ' + nfname2 + ' ' + fname2)
+        # remove the two temporary files we made
+        os.system('rm ' + nfname1)
+        os.system('rm ' + nfname2)
 
     @staticmethod
     def mutateLine(encLine):
-        # 0123456789012345678
-        # 123456789,123456789
-        # second half of encoding is 10-18
-        # If I change the encoding change the following lines to reflect a longer encoding
-
-        stratEnc = encLine[10:18]
-        boardEnc = encLine[0:8]
-
-        mutateBit = randint(0, len(stratEnc) - 1)
-        mutateBit2 = randint(0, len(stratEnc) - 1)
+        # random number between 100, needs to be above whatever I set the number below at
         mutateChance = randint(0, 100)
-
-        maxBit = max(mutateBit, mutateBit2)
-        minBit = min(mutateBit, mutateBit2)
-        outEnc = ''
-        mutateChar1 = stratEnc[mutateBit]
-        mutateChar2 = stratEnc[mutateBit2]
-        if mutateChance <= 5:
-            # Make sure we didn't choose the same two numbers
-            # and if we did choose the same 2 numbers keep reassigning them until we get it
-            # we only need to change bit2
+        if mutateChance <= 30:
+            # print('mutation occured')
+            # 0123456789012345678
+            # 123456789,123456789
+            # second half of encoding is 10-18
+            # If I change the encoding change the following lines to reflect a longer encoding
+            stratEnc = encLine[10:19]
+            boardEnc = encLine[0:9]
+            # set what part of the strings I choose to split at
+            mutateBit = randint(0, (len(stratEnc)) - 1)
+            mutateBit2 = randint(0, (len(stratEnc)) - 1)
+            # Make sure we didn't choose the same two numbers for the mutate bit
             while mutateBit == mutateBit2:
                 if mutateBit == len(stratEnc):
                     mutateBit2 -= 1
                 elif mutateBit == 0:
-                    mutateBit2 += 1
+                    mutateBit2 = mutateBit2 + 1
                 else:
-                    mutateBit2 = randint(0, len(stratEnc))
-
-            # if position of the first bit to switch is the last in the queue
-            if mutateBit == len(stratEnc):
-                outEnc = boardEnc + stratEnc[0:mutateBit2 - 1] + mutateChar1 + stratEnc[mutateBit2 + 1:-1] + mutateChar2
-            # if position of the second bit to switch is the last in the queue
-            elif mutateBit2 == len(stratEnc):
-                outEnc = boardEnc + stratEnc[0:mutateBit - 1] + mutateChar2 + stratEnc[mutateBit + 1:-1] + mutateChar1
-            else:
-                outEnc = boardEnc + stratEnc[0:minBit - 1] + stratEnc[minBit + 1:maxBit]
-        return outEnc
+                    mutateBit2 = randint(0, len(stratEnc)-1)
+            # find the characters we want to switch
+            mutateChar1 = stratEnc[mutateBit]
+            mutateChar2 = stratEnc[mutateBit2]
+            # create a temp string, loop through the old enc, and switch the two numbers
+            tmpString = ''
+            for x in stratEnc:
+                if x == mutateChar1:
+                    tmpString += mutateChar2
+                elif x == mutateChar2:
+                    tmpString += mutateChar1
+                else:
+                    tmpString += x
+            # log that we mutated
+            # print('original encoding:' + encLine + '\n')
+            # print(' Mutated encoding:' + boardEnc + ',' + tmpString + '\n')
+            return boardEnc + ',' + tmpString
+        else:
+            # print('Mutation did not occur, original encoding:' + encLine + '\n')
+            return encLine
 
     @staticmethod
     def resetGeneFile():
@@ -243,14 +235,19 @@ class Encoding:
     def evalFitness(self):
         fitnessFile = open('gymScores.txt', 'r')
         for line in fitnessFile:
-            currLine = line.split(',')
+            currLine = line.strip().split(',')
             currGene = currLine[0]
             currFit = currLine[1]
+            print('currGene:' + currGene)
+            print('currFit:' + currFit)
             self.fitnessTupleList.append([currGene, currFit])
-        #self.fitnessTupleList = self.fitnessTupleList.sort(key=lambda x: x[1])
 
     def createNewEncodings(self):
         pass
+
+
+def assassinate(fileName):
+    os.system('rm ' + fileName)
 
 
 def startUp():
@@ -261,30 +258,51 @@ def startUp():
     print('Error with running bash command')
     print(error)
 
+
 if __name__ == '__main__':
     e = Encoding()
     print('encoding created, moving encodings to archive folder')
-    e.moveToArchive()
+    # e.moveToArchive()
     # Do crossbreeding and mutate and clean up here
     print('evaluating fitness now')
     e.evalFitness()
-
     winList = []
     loseList = []
-
+    # go through each tuple in the fitness list
     for tup in e.fitnessTupleList:
-        if tup[1] == 1:
-            winList.append(str(tup[0]))
+        if tup[1] == '1':
+            print('winner:' + str(tup))
+            winList.append(tup[0])
         else:
-            loseList.append(str(tup[0]))
+            print('loser:' + str(tup))
+            loseList.append(tup[0])
 
+    # Bug fixing print statements
+    print('\n\n\n')
+    for x in winList:
+        print(x)
+    print('\n\n\n')
+
+    # if the length of winList is not 5 or more
     c = 0
-    while len(winList) < 5:
-        winList.append(loseList[c])
-        c += 1
+    if len(winList) < 6:
+        while len(winList) < 6:
+            winList.append(loseList[c])
+            print('appending encoding' + loseList[c][[0]])
+            c += 1
 
-    for winner in range(0, len(winList)-1):
-        e.crossbreed(winList[winner], winList[winner + 1])
+    # for loser in loseList:
+    #    geneNum = loser[0]
+    #    assassinate('encoding' + str(geneNum) + '.txt')
 
+    # Crossbreed and mutate each bot that won
+    i = 0
+    while i < len(winList) - 1:
+        print('crossbreeding encoding lists: [' + str(i) + ',' + str(i + 1) + ']')
+        e.crossbreed(winList[i], winList[i + 1])
+        i += 2
+
+    e.crossbreed('0', '1')
+    # reset the gene file
     e.resetGeneFile()
 
