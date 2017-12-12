@@ -73,6 +73,15 @@ class Encoding:
                     'cp /home/nico/Documents/CompSci/440/tacBot/' + fname
                     + ' /home/nico/Documents/CompSci/440/tacBot/archivedLogs/gen0/' + fname)
 
+    @staticmethod
+    def file_len(fname):
+        with open(fname) as f:
+            q = 0
+            for q, l in enumerate(f):
+                pass
+        return q + 1
+
+
     def crossbreed(self, gene1, gene2):
         fname1 = 'encoding' + str(gene1) + '.txt'
         fname2 = 'encoding' + str(gene2) + '.txt'
@@ -80,15 +89,17 @@ class Encoding:
         nfname1 = 'ne' + str(gene1) + '.txt'
         nfname2 = 'ne' + str(gene2) + '.txt'
 
+        # checking the file size of each gene file
+        print('old file size for ' + gene1 + ' and ' + gene2)
+        print(str(self.file_len(fname1)))
+        print(str(self.file_len(fname1)))
+
         # open the two actual encoding files
         file1 = open(fname1, 'r')
         file2 = open(fname2, 'r')
         # open two new encoding files that will replace the old files
         newFile1 = open(nfname1, 'w')
         newFile2 = open(nfname2, 'w')
-        # increment the current generation number
-        # write the new generation num to the new files
-
         # List of two encodings
         encList1 = []
         encList2 = []
@@ -96,25 +107,28 @@ class Encoding:
         newEncList1 = []
         newEncList2 = []
         lineCount = 0
+        # get all the info we need in file1
         for line in file1:
             if lineCount == 0:
-                currGen = line.strip()
-            elif lineCount == 1:
-                currGene = line.strip()
+                currGen1 = line.strip()
             elif lineCount >= 2:
                 encList1.append(line)
             lineCount += 1
-
-        currGen = 0
+        # get all the info in file2
         lineCount = 0
         for line in file2:
-            if lineCount == 1:
+            if lineCount == 0:
+                currGen2 = line.strip()
+            elif lineCount == 1:
                 currGene = line.strip()
             elif lineCount >= 2:
                 encList2.append(line)
             lineCount += 1
 
-        newGen = int(currGen) + 1
+        if not currGen1 == currGen2:
+            print('generations are not the same')
+            pass
+        newGen = int(currGen1) + 1
         newFile1.write(str(newGen) + '\n')
         newFile2.write(str(newGen) + '\n')
         # write the gene numbers of the respective files
@@ -123,9 +137,9 @@ class Encoding:
 
         # If the length of the two lists is not equal then quit
         if not len(encList1) == len(encList2):
-            print('encoding lists are different sizes')
-            print('len of enc1:' + str(len(encList1)))
-            print('len of enc2:' + str(len(encList2)))
+            print('encoding lists are different sizes for gene' + str(gene1) + ' and ' + gene2)
+            print('len of ' + gene1 + ':' + str(len(encList1)))
+            print('len of ' + gene2 + ':' + str(len(encList2)))
             pass
         # choose a random point to switch encodings
         crossPoint = randint(0, len(encList1)-1)
@@ -133,7 +147,7 @@ class Encoding:
         crossChance = randint(0, 100)
         # 10% chance to crossbreed
         if crossChance <= 100:
-            for i in range(len(encList1)-1):
+            for i in range(len(encList1)):
                 # go up to the crosspoint in both lists, append them to their normal spots,
                 # but switch the second parts of each list
                 # ex.
@@ -162,13 +176,11 @@ class Encoding:
             newFile1.write(encList1x.strip() + '\n')
         for encList2x in newEncList2:
             newFile2.write(encList2x.strip() + '\n')
-        # close each of the files
+        # close each of the files we opened so all the buffers are written
         file1.close()
         file2.close()
         newFile1.close()
         newFile2.close()
-        # delete the current gene encoding and replace it with the new encoding
-        # remove the previous encoding files
         # remove the old files because we already archived them
         os.system('rm ' + fname1)
         os.system('rm ' + fname2)
@@ -179,6 +191,10 @@ class Encoding:
         # remove the two temporary files we made
         os.system('rm ' + nfname1)
         os.system('rm ' + nfname2)
+
+        print('new file size for ' + gene1 + ' and ' + gene2)
+        print(str(self.file_len(fname1)))
+        print(str(self.file_len(fname1)))
 
     @staticmethod
     def mutateLine(encLine):
@@ -242,9 +258,148 @@ class Encoding:
             print('currFit:' + currFit)
             self.fitnessTupleList.append([currGene, currFit])
 
-    def createNewEncodings(self):
-        pass
+    # using the given number of genes, create twice as many
+    # TODO:
+    # at the end of the while loop we have to increment n and count to move on to next things
+    @staticmethod
+    def createMore(winnerGeneList):
+        # winnerGeneList will contain top 5 scoring gene IDs
+        # 0,1  || total Run = 0   num = 0
+        # 2,3  || total Run = 1   num = 2
+        # 3,4  || total Run = 2   num = 3
+        num = 0
+        totalRun = 0
+        pairList = [[0, 1] , [2, 3], [3, 4]]
+        # Run the while loop three times, one for each of the pairs above
+        while totalRun < 3:
+            print('num at the beginning of while loop:' + str(num))
+            print('totalRun at beginning of while loop:' + str(totalRun))
+            # store the gene Number of each of the winning files
+            g1 = str(winnerGeneList[num])
+            g2 = str(winnerGeneList[num + 1])
+            currPair = pairList.pop()
+            # set the file names for both the old encoding file and the temp encoding file
+            fname1 = 'encoding' + g1 + '.txt'
+            nfname1 = 'te' + str(currPair[0]) + '.txt'
+            fname2 = 'encoding' + g2 + '.txt'
+            nfname2 = 'te' + str(currPair[1]) + '.txt'
+            print('fname1:' + fname1)
+            print('fname2:' + fname2)
+            print('nfname1:' + nfname1)
+            print('nfname2:' + nfname2)
+            # open all the files
+            file1 = open(fname1, 'r')
+            nfile1 = open(nfname1, 'w')
+            file2 = open(fname2, 'r')
+            nfile2 = open(nfname2, 'w')
+            # initialize variables
+            currGen1 = ''
+            currGene1 = ''
+            currGen2 = ''
+            currGene2 = ''
+            enc1 = []
+            enc2 = []
+            lineCount = 0
+            # for each line in file1 extract variables
+            for line in file1:
+                if lineCount == 0:
+                    print('currGen = ' + str(line))
+                    currGen1 = line.strip()
+                elif lineCount == 1:
+                    print('currGen = ' + str(line))
+                    currGene1 = line.strip()
+                else:
+                    enc1.append(line.strip())
+                lineCount += 1
+            # for each line in file2 extract variables
+            for line in file2:
+                if lineCount == 0:
+                    print('currGen = ' + str(line))
+                    currGen2 = line.strip()
+                elif lineCount == 1:
+                    print('currGen = ' + str(line))
+                    currGene2 = line.strip()
+                else:
+                    enc2.append(line.strip())
+                lineCount += 1
+            print('currGen1:' + currGen1)
+            print('currGen2:' + currGen2)
+            # write gen num and gene num to each of the files
+            nfile1.write(str(currGen1) + '\n')
+            nfile2.write(str(currGen2) + '\n')
+            nfile1.write(str(num) + '\n')
+            nfile1.write(str(num + 1) + '\n')
+            # write all the encodings to each respective file
+            for enc in enc1:
+                nfile1.write(enc + '\n')
+            for enc in enc2:
+                nfile2.write(enc + '\n')
+            # Increment count variables
+            if totalRun == 0:
+                totalRun += 1
+                num += 2
+            elif totalRun == 2:
+                totalRun += 1
+                num += 1
+            else:
+                totalRun += 1
+            # close all the files
+            file1.close()
+            nfile1.close()
+            file2.close()
+            nfile2.close()
+            print('totalRun at beginning of while loop:' + str(totalRun))
 
+        #end of while loop
+        # remove all files that start with the string 'encoding'
+        print('removing all encoding.txt files')
+        os.system('rm encoding*')
+
+        pairList = [0, 1], [2, 3], [3, 4]
+        outList = [5, 6, 7, 8, 9]
+        print('starting for loop that creates a batch of new files')
+        for geneNum in pairList:
+            # open each pair of encoding sets
+            tfname1 = 'te' + str(geneNum[0]) + '.txt'
+            tfname2 = 'te' + str(geneNum[1]) + '.txt'
+            print('THIS ONE IS IMPORTANT 1:' + str(geneNum[0]))
+            print('THIS ONE IS IMPORTNAT 2:' + str(geneNum[1]))
+            print('renaming the temp files to the real files')
+            os.system('cp ' + tfname1 + ' encoding' + str(geneNum[0]) + '.txt')
+            os.system('cp ' + tfname2 + ' encoding' + str(geneNum[1]) + '.txt')
+
+            newGeneNum = str(outList.pop())
+            nfname = 'encoding' + newGeneNum + '.txt'
+            print('newGeneNum I AM INTERESTED IN THIS ONE:' + newGeneNum)
+            print('nfname:' + nfname)
+
+            file1 = open(tfname1)
+            file2 = open(tfname2)
+            newFile = open(nfname, 'w')
+            lineCount = 0
+            enc1List = []
+            enc2List = []
+            for line in file1:
+                if lineCount >= 2:
+                    enc1List.append(line.strip())
+            for line in file2:
+                if lineCount >= 2:
+                    enc2List.append(line.strip())
+            newFile.write(currGen1 + '\n')
+            newFile.write(newGeneNum + '\n')
+            # create the actual new file
+            crossPoint = randint(0, len(enc1List))
+            for lineNum in range(0, len(enc1List)):
+                if lineNum < crossPoint:
+                    newFile.write(enc1List[lineNum] + '\n')
+                else:
+                    newFile.write(enc2List[lineNum] + '\n')
+            newFile.close()
+            file1.close()
+            file2.close()
+            # TODO: remove temporary files
+            # do this with os.system(rm te*)
+            # also make sure you do something about test.py
 
 def assassinate(fileName):
     os.system('rm ' + fileName)
@@ -260,15 +415,20 @@ def startUp():
 
 
 if __name__ == '__main__':
+    # create our encoding object
     e = Encoding()
-    print('encoding created, moving encodings to archive folder')
-    # e.moveToArchive()
+    winnerList = [2, 3, 4, 5, 6]
+    e.createMore(winnerList)
+    """"# uncomment the following two lines to archive things
+    # print('encoding created, moving encodings to archive folder')
+    e.moveToArchive()
+
     # Do crossbreeding and mutate and clean up here
     print('evaluating fitness now')
     e.evalFitness()
     winList = []
     loseList = []
-    # go through each tuple in the fitness list
+    # go through each tuple in the fitness list and see if they won or lost their game
     for tup in e.fitnessTupleList:
         if tup[1] == '1':
             print('winner:' + str(tup))
@@ -278,7 +438,7 @@ if __name__ == '__main__':
             loseList.append(tup[0])
 
     # Bug fixing print statements
-    print('\n\n\n')
+    print('\n\n\nWinList\n')
     for x in winList:
         print(x)
     print('\n\n\n')
@@ -300,9 +460,9 @@ if __name__ == '__main__':
     while i < len(winList) - 1:
         print('crossbreeding encoding lists: [' + str(i) + ',' + str(i + 1) + ']')
         e.crossbreed(winList[i], winList[i + 1])
-        i += 2
+        i += 2"""
 
-    e.crossbreed('0', '1')
+    # e.crossbreed('0', '1')
     # reset the gene file
     e.resetGeneFile()
 
