@@ -100,9 +100,11 @@ class Encoding:
         # open two new encoding files that will replace the old files
         newFile1 = open(nfname1, 'w')
         newFile2 = open(nfname2, 'w')
+
         # List of two encodings
         encList1 = []
         encList2 = []
+
         # return list of crossbred lists
         newEncList1 = []
         newEncList2 = []
@@ -269,7 +271,7 @@ class Encoding:
         # 3,4  || total Run = 2   num = 3
         num = 0
         totalRun = 0
-        pairList = [[0, 1] , [2, 3], [3, 4]]
+        pairList = [[0, 1], [2, 3], [3, 4]]
         # Run the while loop three times, one for each of the pairs above
         while totalRun < 3:
             print('num at the beginning of while loop:' + str(num))
@@ -294,9 +296,7 @@ class Encoding:
             nfile2 = open(nfname2, 'w')
             # initialize variables
             currGen1 = ''
-            currGene1 = ''
             currGen2 = ''
-            currGene2 = ''
             enc1 = []
             enc2 = []
             lineCount = 0
@@ -305,10 +305,7 @@ class Encoding:
                 if lineCount == 0:
                     print('currGen = ' + str(line))
                     currGen1 = line.strip()
-                elif lineCount == 1:
-                    print('currGen = ' + str(line))
-                    currGene1 = line.strip()
-                else:
+                elif lineCount >= 2:
                     enc1.append(line.strip())
                 lineCount += 1
             # for each line in file2 extract variables
@@ -316,19 +313,19 @@ class Encoding:
                 if lineCount == 0:
                     print('currGen = ' + str(line))
                     currGen2 = line.strip()
-                elif lineCount == 1:
-                    print('currGen = ' + str(line))
-                    currGene2 = line.strip()
-                else:
+                elif lineCount >= 2:
                     enc2.append(line.strip())
                 lineCount += 1
+
             print('currGen1:' + currGen1)
             print('currGen2:' + currGen2)
+
             # write gen num and gene num to each of the files
             nfile1.write(str(currGen1) + '\n')
             nfile2.write(str(currGen2) + '\n')
             nfile1.write(str(num) + '\n')
-            nfile1.write(str(num + 1) + '\n')
+            nfile2.write(str(num + 1) + '\n')
+
             # write all the encodings to each respective file
             for enc in enc1:
                 nfile1.write(enc + '\n')
@@ -350,7 +347,7 @@ class Encoding:
             nfile2.close()
             print('totalRun at beginning of while loop:' + str(totalRun))
 
-        #end of while loop
+        # end of while loop
         # remove all files that start with the string 'encoding'
         print('removing all encoding.txt files')
         os.system('rm encoding*')
@@ -362,19 +359,26 @@ class Encoding:
             # open each pair of encoding sets
             tfname1 = 'te' + str(geneNum[0]) + '.txt'
             tfname2 = 'te' + str(geneNum[1]) + '.txt'
-            print('THIS ONE IS IMPORTANT 1:' + str(geneNum[0]))
-            print('THIS ONE IS IMPORTNAT 2:' + str(geneNum[1]))
+            # file name
+            print('geneNum1:' + str(geneNum[0]))
+            print('geneNum2:' + str(geneNum[1]))
             print('renaming the temp files to the real files')
+
+            # todo: this is wrong, I need to literally recreate the files because copying them has the wrong gene num
             os.system('cp ' + tfname1 + ' encoding' + str(geneNum[0]) + '.txt')
             os.system('cp ' + tfname2 + ' encoding' + str(geneNum[1]) + '.txt')
 
+
+
+
+            # Experimental  
             newGeneNum = str(outList.pop())
             nfname = 'encoding' + newGeneNum + '.txt'
-            print('newGeneNum I AM INTERESTED IN THIS ONE:' + newGeneNum)
+            print('newGeneNum:' + newGeneNum)
             print('nfname:' + nfname)
 
-            file1 = open(tfname1)
-            file2 = open(tfname2)
+            file1 = open(tfname1, 'r+')
+            file2 = open(tfname2, 'r+')
             newFile = open(nfname, 'w')
             lineCount = 0
             enc1List = []
@@ -385,6 +389,8 @@ class Encoding:
             for line in file2:
                 if lineCount >= 2:
                     enc2List.append(line.strip())
+            # write the generation number
+            # write the new gene number
             newFile.write(currGen1 + '\n')
             newFile.write(newGeneNum + '\n')
             # create the actual new file
@@ -397,9 +403,9 @@ class Encoding:
             newFile.close()
             file1.close()
             file2.close()
-            # TODO: remove temporary files
-            # do this with os.system(rm te*)
-            # also make sure you do something about test.py
+            # remove temporary files
+        os.system('rm te*')
+
 
 def assassinate(fileName):
     os.system('rm ' + fileName)
