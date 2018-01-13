@@ -219,6 +219,7 @@ def startUp():
 
 
 if __name__ == '__main__':
+    createRandomFile()
     e = Encoding()                      # Create the list of encodings
     startUp()
     e.moveToArchive()
